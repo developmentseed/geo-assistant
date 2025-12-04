@@ -63,8 +63,8 @@ async def fetch_naip_img(
 
     ds: xr.Dataset = stac_load(
         items,
-        bands=["red", "green", "blue"],  # use only RGB
-        chunks={"x": 2048, "y": 2048},  # eager load (no dask) for small AOIs
+        bands=["Red", "Green", "Blue"],  # use only RGB
+        #chunks={"x": 2048, "y": 2048},  # eager load (no dask) for small AOIs
         geopolygon=aoi_geojson,
         resolution=resolution,
     )
@@ -79,9 +79,9 @@ async def fetch_naip_img(
     # --- 3. Build an RGB composite from the cube ---
     # For the PNG, we’ll just use the first time slice (you can swap in “latest”
     # or a temporal reduction if you prefer).
-    red = ds["red"].isel(time=0)
-    green = ds["green"].isel(time=0)
-    blue = ds["blue"].isel(time=0)
+    red = ds["Red"].isel(time=0)
+    green = ds["Green"].isel(time=0)
+    blue = ds["Blue"].isel(time=0)
 
     # Stack into (y, x, 3) array
     rgb = xr.concat([red, green, blue], dim="band")  # (band, y, x)
