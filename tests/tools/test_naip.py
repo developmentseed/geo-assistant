@@ -28,10 +28,10 @@ async def test_fetch_naip(tmp_path):
     aoi = box(lon - 0.01, lat - 0.01, lon + 0.01, lat + 0.01)
     aoi_geojson = mapping(aoi)
 
-    out_png = tmp_path / "naip_union_market_rgb.png"
+    out_png = tmp_path / "naip_test_img.png"
 
     tool_call = ToolCall(
-        name="fetch_naip_cube_and_png",
+        name="fetch_naip_img",
         args={
             "aoi_geojson": aoi_geojson,
             "start_date": "2018-01-01",

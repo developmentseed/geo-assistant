@@ -2,6 +2,7 @@
 from typing import Dict, Any
 from pathlib import Path
 
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -61,13 +62,14 @@ async def fetch_naip_img(
         # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
         # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection
 
-    ds: xr.Dataset = stac_load(
-        items,
-        bands=["Red", "Green", "Blue"],  # use only RGB
-        #chunks={"x": 2048, "y": 2048},  # eager load (no dask) for small AOIs
-        geopolygon=aoi_geojson,
-        resolution=resolution,
-    )
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        ds: xr.Dataset = stac_load(
+            items,
+            bands=["Red", "Green", "Blue"],  # use only RGB
+            geopolygon=aoi_geojson,
+            resolution=resolution,
+            executor=executor,
+        )
     if ds.dims.get("time", 0) == 0:
         return {
             "stac_item_count": len(items),
