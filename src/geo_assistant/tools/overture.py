@@ -48,7 +48,7 @@ async def get_place(
           CAST(socials AS JSON) AS socials,
           ST_AsGeoJSON(geometry) AS geometry,
       FROM read_parquet(
-          's3://overturemaps-us-west-2/release/2025-11-19.0/theme=places/type=place/*',
+          'data/overture/places/*',
           filename=true,
           hive_partitioning=1
       )
