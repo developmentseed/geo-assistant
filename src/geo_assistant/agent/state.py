@@ -3,5 +3,5 @@ from geojson_pydantic import FeatureCollection
 from typing import Optional
 
 
-class AgentState(BaseAgentState):
+class GeoAssistantState(BaseAgentState):
     place: Optional[FeatureCollection]
