@@ -4,7 +4,7 @@ from geo_assistant.tools.overture import get_place
 
 
 async def test_get_place():
-    command = get_place.invoke(
+    command = await get_place.ainvoke(
         ToolCall(
             name="get_place",
             type="tool_call",

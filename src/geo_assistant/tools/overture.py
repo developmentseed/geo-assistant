@@ -1,10 +1,11 @@
-from typing import Annotated
-import duckdb
 import json
-from langchain_core.tools import tool
-from langgraph.types import Command
+from typing import Annotated
+
+import duckdb
 from langchain_core.messages import ToolMessage
+from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
+from langgraph.types import Command
 
 
 def create_database_connection():
@@ -15,6 +16,7 @@ def create_database_connection():
 
     Returns:
         Configured DuckDB connection
+
     """
     connection = duckdb.connect()
     connection.execute("INSTALL spatial;")
@@ -25,7 +27,7 @@ def create_database_connection():
 
 
 @tool
-def get_place(
+async def get_place(
     place_name: str, tool_call_id: Annotated[str, InjectedToolCallId] = ""
 ) -> Command:
     """Get place location from Overture Maps based on user input place name."""
