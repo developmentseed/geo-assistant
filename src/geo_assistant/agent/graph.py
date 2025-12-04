@@ -4,7 +4,8 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langchain.agents import create_agent
 from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.agent.llms import llm
-from geo_assistant.tools.overture import get_overture_locations
+from geo_assistant.tools.overture import get_place
+from src.geo_assistant.tools.buffer import get_search_area
 
 SYSTEM_PROMPT = """
 You are a helpful assistant that can answer questions and help with tasks.
@@ -19,7 +20,7 @@ async def create_graph():
     checkpointer = InMemorySaver()
     graph = create_agent(
         model=llm,
-        tools=[get_overture_locations],  # [get_overture_locations, geocode_division],
+        tools=[get_place, get_search_area],
         system_prompt=SYSTEM_PROMPT.format(
             now=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ),
