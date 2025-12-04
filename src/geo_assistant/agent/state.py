@@ -4,4 +4,4 @@ from typing import Optional
 
 
 class GeoAssistantState(BaseAgentState):
-    place: Optional[FeatureCollection]
+    place: Optional[FeatureCollection] = None

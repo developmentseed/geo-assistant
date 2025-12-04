@@ -17,6 +17,7 @@ dependencies = [
     "python-dotenv",
     "duckdb",
     "shapely",
+    "watchdog>=6.0.0",
 ]
 
 [dependency-groups]
