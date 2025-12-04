@@ -39,7 +39,7 @@ def stream_chat(user_message: str):
         "POST",
         f"{API_BASE_URL}/chat",
         json=request_body,
-        timeout=60.0,
+        timeout=360.0,
     ) as response:
         response.raise_for_status()
 
