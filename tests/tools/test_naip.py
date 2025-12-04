@@ -29,6 +29,7 @@ async def test_fetch_naip(tmp_path):
     aoi_geojson = mapping(aoi)
 
     out_png = tmp_path / "naip_test_img.png"
+    out_png = "naip_test_img.png"
 
     tool_call = ToolCall(
         name="fetch_naip_img",
