@@ -5,7 +5,7 @@ from langchain.agents import create_agent
 from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.agent.llms import llm
 from geo_assistant.tools.overture import get_place
-from src.geo_assistant.tools.buffer import get_search_area
+from geo_assistant.tools.buffer import get_search_area
 
 SYSTEM_PROMPT = """
 You are a helpful assistant that can answer questions and help with tasks.
