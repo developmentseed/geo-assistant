@@ -212,3 +212,6 @@ __marimo__/
 # Notebook
 .ipynb_checkpoints
 nbs/*
+
+# OSX
+.DS_Store
