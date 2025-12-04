@@ -34,7 +34,7 @@ async def test_fetch_naip(tmp_path):
         name="fetch_naip_img",
         args={
             "aoi_geojson": aoi_geojson,
-            "start_date": "2018-01-01",
+            "start_date": "2022-01-01",
             "end_date": "2022-12-31",
             "out_png_path": str(out_png),
             "resolution": 1.0,
