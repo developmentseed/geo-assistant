@@ -1,11 +1,16 @@
 import json
+import os
 from typing import Annotated
 
 import duckdb
+from dotenv import load_dotenv
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
 from langgraph.types import Command
+
+# Load environment variables
+load_dotenv()
 
 
 def create_database_connection():
@@ -33,12 +38,16 @@ async def get_place(
     """Get place location from Overture Maps based on user input place name."""
 
     db_connection = create_database_connection()
+    source = os.getenv("OVERTURE_SOURCE", "local")
+    if source == "s3":
+        data_path = os.getenv("OVERTURE_S3_PATH")
+        db_connection.execute("SET s3_region='us-west-2';")
+    else:
+        data_path = os.getenv("OVERTURE_LOCAL_PATH")
 
     location_results = db_connection.execute(
         f"""
       LOAD spatial;
-
-      SET s3_region='us-west-2';
 
       SELECT
           id,
@@ -48,7 +57,7 @@ async def get_place(
           CAST(socials AS JSON) AS socials,
           ST_AsGeoJSON(geometry) AS geometry,
       FROM read_parquet(
-          'data/overture/places/*',
+          '{data_path}',
           filename=true,
           hive_partitioning=1
       )
