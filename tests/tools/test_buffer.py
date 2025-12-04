@@ -16,8 +16,8 @@ def geo_assistant_fixture():
 
 
 async def test_get_search_area(geo_assistant_fixture):
-    # Call the underlying function directly to test the logic
-    # This bypasses the injection framework which is better suited for integration tests
+    # Pass state and tool_call_id directly in args for unit testing
+    # In production, these would be injected by the framework
     command = await get_search_area.ainvoke(
         ToolCall(
             name="get_search_area",
