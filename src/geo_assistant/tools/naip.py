@@ -66,6 +66,7 @@ async def fetch_naip_img(
             items,
             bands=["red", "green", "blue"],  # use only RGB
             chunks={"x": 2048, "y": 2048},  # eager load (no dask) for small AOIs
+            geopolygon=aoi_geojson,
             pool=executor,
         )
     if ds.dims.get("time", 0) == 0:
