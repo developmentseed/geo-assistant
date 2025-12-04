@@ -31,7 +31,7 @@ These models are used for agent and satellite image analysis.
 
 ## Data Setup
 
-Download Overture Maps place data:
+Download Overture Maps place data locally:
 
 ```bash
 mkdir -p data/overture/places
