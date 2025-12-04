@@ -10,7 +10,7 @@ from geo_assistant.agent.state import GeoAssistantState
 
 
 @tool
-def get_search_area(
+async def get_search_area(
     buffer_size_km: float,
     state: Annotated[GeoAssistantState, InjectedState],
     tool_call_id: Annotated[str, InjectedToolCallId] = "",

@@ -2,6 +2,7 @@ from pytest import fixture
 from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.tools.buffer import get_search_area
 from geojson_pydantic import FeatureCollection, Feature, Point
+from langchain_core.tools.base import ToolCall
 
 
 @fixture
@@ -19,13 +20,20 @@ def geo_assistant_fixture():
     return GeoAssistantState(place=place_geojson, search_area=None, messages=[])
 
 
-def test_get_search_area(geo_assistant_fixture):
+async def test_get_search_area(geo_assistant_fixture):
     # Call the underlying function directly to test the logic
     # This bypasses the injection framework which is better suited for integration tests
-    command = get_search_area.func(
-        buffer_size_km=10.0,
-        state=geo_assistant_fixture,
-        tool_call_id="test_id_search_area",
+    command = await get_search_area.ainvoke(
+        ToolCall(
+            name="get_search_area",
+            type="tool_call",
+            id="test_id_search_area",
+            args={
+                "buffer_size_km": 10.0,
+                "state": geo_assistant_fixture,
+                "tool_call_id": "test_id_search_area",
+            },
+        ),
     )
 
     # Verify the state was used correctly
