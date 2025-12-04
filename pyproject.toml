@@ -18,6 +18,7 @@ dependencies = [
     "duckdb",
     "shapely",
     "geopandas>=1.1.1",
+    "dspy>=3.0.4",
     "watchdog>=6.0.0",
 ]
 
@@ -27,6 +28,7 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "pre-commit",
+    "jupyterlab>=4.5.0",
 ]
 
 [build-system]
