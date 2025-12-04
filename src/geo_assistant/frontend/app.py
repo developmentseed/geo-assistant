@@ -31,6 +31,7 @@ def stream_chat(user_message: str):
         "agent_state_input": {
             "messages": [{"type": "human", "content": user_message}],
             "place": None,
+            "search_area": None,
         },
     }
 
