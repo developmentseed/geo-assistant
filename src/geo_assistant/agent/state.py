@@ -1,5 +1,5 @@
-from langchain.agents import AgentState as BaseAgentState
-from geojson_pydantic import FeatureCollection
+from langchain.agents import AgentState
+from geojson_pydantic import Feature
 from typing import Optional
 from pydantic import Field, BaseModel
 
@@ -17,8 +17,9 @@ class NaipImageInfo(BaseModel):
     png_path: str
 
 
-class GeoAssistantState(BaseAgentState):
-    place: Optional[FeatureCollection]
+class GeoAssistantState(AgentState):
+    place: Optional[Feature]
+    search_area: Optional[Feature]
     naip_image: Optional[NaipImageInfo] = Field(
         default=None, description="Information about the fetched NAIP image"
     )

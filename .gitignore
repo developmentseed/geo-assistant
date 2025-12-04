@@ -210,3 +210,6 @@ __marimo__/
 .vscode/
 
 **.DS_Store
+# Notebook
+.ipynb_checkpoints
+nbs/*
