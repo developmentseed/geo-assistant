@@ -17,10 +17,8 @@ class NaipImageInfo(BaseModel):
     png_path: str
 
 
-class AgentState(BaseAgentState):
-    feature_collection: Optional[FeatureCollection] = Field(
-        default=None, description="FeatureCollection to be used for the analysis"
-    )
+class GeoAssistantState(BaseAgentState):
+    place: Optional[FeatureCollection]
     naip_image: Optional[NaipImageInfo] = Field(
         default=None, description="Information about the fetched NAIP image"
     )

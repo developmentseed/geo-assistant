@@ -2,7 +2,7 @@ import datetime
 
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain.agents import create_agent
-from geo_assistant.agent.state import AgentState
+from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.agent.llms import llm
 from geo_assistant.tools.overture import get_overture_locations
 from geo_assistant.tools.naip import fetch_naip_img
@@ -29,7 +29,7 @@ async def create_graph():
         system_prompt=SYSTEM_PROMPT.format(
             now=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ),
-        state_schema=AgentState,
+        state_schema=GeoAssistantState,
         checkpointer=checkpointer,
     )
     return graph
