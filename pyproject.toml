@@ -17,6 +17,7 @@ dependencies = [
     "python-dotenv",
     "duckdb",
     "shapely",
+    "dspy>=3.0.4",
 ]
 
 [dependency-groups]
@@ -25,6 +26,7 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "pre-commit",
+    "jupyterlab>=4.5.0",
 ]
 
 [build-system]

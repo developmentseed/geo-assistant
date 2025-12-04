@@ -208,3 +208,7 @@ __marimo__/
 
 # VSCode
 .vscode/
+
+# Notebook
+.ipynb_checkpoints
+nbs/*
