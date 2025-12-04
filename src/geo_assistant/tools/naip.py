@@ -1,16 +1,17 @@
 # tools/naip_mpc_tools.py
 from typing import Dict, Any
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 from langchain_core.tools import tool
 from pystac_client import Client
-import planetary_computer as pc
 from odc.stac import stac_load
 
-PC_STAC_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
+# PC_STAC_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
+E84_STAC_URL = "https://earth-search.aws.element84.com/v1"
 
 
 @tool("fetch_naip_img")
@@ -39,8 +40,8 @@ async def fetch_naip_img(
             - dataset_dims: dict of cube dimensions
             - png_path: filesystem path to the saved PNG (or None if no data)
     """
-    # --- 1. STAC search on Planetary Computer ---
-    catalog = Client.open(PC_STAC_URL)
+    # --- 1. STAC search on Element84's EarthSearch API ---
+    catalog = Client.open(E84_STAC_URL)
 
     search = catalog.search(
         collections=["naip"],
@@ -48,30 +49,25 @@ async def fetch_naip_img(
         datetime=f"{start_date}/{end_date}",
     )
 
-    items = list(search.get_items())
-    if not items:
+    items = list(search.items())
+    if len(items) == 0:
         return {
             "stac_item_count": 0,
             "dataset_dims": {},
             "png_path": None,
-            "note": "No NAIP items found for AOI/date range.",
+            "note": "No NAIP items found for the given AOI and date range.",
         }
-
-    print(f"SAMPLE STAC ITEM: {items[0].to_dict()}")
 
     # --- 2. Load as xarray cube with odc.stac ---
     # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
-    # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection. :contentReference[oaicite:4]{index=4}
-    ds: xr.Dataset = stac_load(
-        items,
-        # bands=["red", "green", "blue"],  # use only RGB
-        chunks={},  # eager load (no dask) for small AOIs
-        patch_url=pc.sign,  # sign NAIP asset URLs for MPC :contentReference[oaicite:5]{index=5}
-        resolution=resolution,
-    )
-    print("DATASET: ")
-    print(ds)
-
+    # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        ds: xr.Dataset = stac_load(
+            items,
+            bands=["red", "green", "blue"],  # use only RGB
+            chunks={"x": 2048, "y": 2048},  # eager load (no dask) for small AOIs
+            pool=executor,
+        )
     if ds.dims.get("time", 0) == 0:
         return {
             "stac_item_count": len(items),
