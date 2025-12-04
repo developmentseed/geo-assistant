@@ -34,7 +34,7 @@ async def get_search_area(
     gdf = gpd.GeoDataFrame.from_features(place_feature_collection.features)
     gdf.crs = "EPSG:4326"
 
-    gdf_m = gdf.to_crs(epsg=3857)  # Web Mercator for meter-based buffering
+    gdf_m = gdf.to_crs(epsg=3857)  # latlon to Web Mercator for meter-based buffering
 
     gdf_m["geometry"] = gdf_m["geometry"].buffer(
         buffer_size_km * 1000
