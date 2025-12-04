@@ -5,3 +5,4 @@ from typing import Optional
 
 class AgentState(BaseAgentState):
     place: Optional[FeatureCollection]
+    search_area: Optional[FeatureCollection]
