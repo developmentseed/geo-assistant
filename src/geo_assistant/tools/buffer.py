@@ -1,4 +1,3 @@
-import shapely
 import geopandas as gpd
 from langgraph.types import Command
 from langgraph.prebuilt import InjectedState
@@ -37,9 +36,9 @@ async def get_search_area(
 
     gdf_m = gdf.to_crs(epsg=3857)  # Web Mercator for meter-based buffering
 
-    gdf_m["geometry"] = gdf_m["geometry"].apply(
-        lambda geom: shapely.geometry.shape(geom).buffer(buffer_size_km * 1000)
-    )
+    gdf_m["geometry"] = gdf_m["geometry"].buffer(
+        buffer_size_km * 1000
+    )  # Buffer in meters
     gdf = gdf_m.to_crs(epsg=4326)  # Back to WGS84
 
     # Convert back to GeoJSON FeatureCollection
