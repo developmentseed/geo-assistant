@@ -1,11 +1,16 @@
 """Tools for summarizing satellite images using LLM-based analysis."""
 
+import os
 from typing import Annotated, Optional
 import dspy
 from langchain_core.tools import tool
 from langgraph.types import Command
 from langchain_core.messages import ToolMessage
 from langchain_core.tools.base import InjectedToolCallId
+
+import dotenv
+
+dotenv.load_dotenv()
 
 
 class SatImgSummary(dspy.Signature):
@@ -20,8 +25,8 @@ class SatImgSummaryAgent(dspy.Module):
 
     def __init__(
         self,
-        model: str = "ministral-3:14b-cloud",
-        api_base: str = "http://localhost:11434",
+        model: str = os.environ.get("OLLAMA_IMAGE_MODEL", "ministral-3:14b-cloud"),
+        api_base: str = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434"),
         temperature: float = 0.5,
         max_tokens: int = 4_096,
     ) -> None:

@@ -214,6 +214,8 @@ __marimo__/
 nbs/*
 !nbs/.gitkeep
 
+# OSX
+.DS_Store
 # Data
 data/*
 !data/.gitkeep
