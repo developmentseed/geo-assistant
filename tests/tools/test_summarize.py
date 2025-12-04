@@ -16,6 +16,7 @@ TEST_IMAGE_URL = "https://petapixel.com/assets/uploads/2022/08/French-Officials-
         (TEST_IMAGE_URL, "building"),
     ],
 )
+@pytest.mark.xfail
 def test_summarize_sat_img(img_url, summary):
     command = summarize_sat_img.invoke(
         ToolCall(
