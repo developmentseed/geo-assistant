@@ -84,26 +84,22 @@ async def stream_chat(
         stream_mode="updates",
     )
 
-    try:
-        async with aclosing(stream):
-            async for update in stream:
-                if await request.is_disconnected():
-                    logger.info("Client disconnected; stopping stream.")
-                    break
+    async with aclosing(stream):
+        async for update in stream:
+            if await request.is_disconnected():
+                logger.info("Client disconnected; stopping stream.")
+                break
 
-                agent = next(iter(update.keys()))
-                payload = update[agent]
-                if "feature_collection" not in payload:  # TODO
-                    payload["feature_collection"] = None
-                state_payload = GeoAssistantState(**payload)
+            agent = next(iter(update.keys()))
+            payload = update[agent]
+            if "place" not in payload:  # TODO: why is this needed?
+                payload["place"] = None
+            state_payload = GeoAssistantState(**payload)
 
-                resp = ChatResponse(thread_id=str(thread_id), state=state_payload)
+            resp = ChatResponse(thread_id=str(thread_id), state=state_payload)
 
-                line = json.dumps(resp.model_dump()) + "\n"
-                yield line.encode("utf-8")
-
-    except Exception as e:
-        logger.warning("stream_chat error: %r", e)
+            line = json.dumps(resp.model_dump()) + "\n"
+            yield line.encode("utf-8")
 
 
 @app.post("/chat")

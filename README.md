@@ -25,11 +25,13 @@ The application will automatically load these variables from the `.env` file.
 This project uses pre-commit hooks to ensure code quality. To set up pre-commit:
 
 1. Install dependencies (including pre-commit):
+
 ```bash
 uv sync
 ```
 
-2. Install the git hooks:
+1. Install the git hooks:
+
 ```bash
 uv run pre-commit install
 ```
@@ -37,6 +39,7 @@ uv run pre-commit install
 Pre-commit will now automatically run ruff linting and formatting checks before each commit.
 
 To manually run pre-commit on all files:
+
 ```bash
 uv run pre-commit run --all-files
 ```
@@ -44,7 +47,7 @@ uv run pre-commit run --all-files
 ## Running the API
 
 ```bash
-uvicorn geo_assistant.api.app:app --reload
+uv run uvicorn geo_assistant.api.app:app --reload
 ```
 
 The API will be available at `http://localhost:8000`.
