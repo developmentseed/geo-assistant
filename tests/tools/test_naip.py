@@ -25,7 +25,7 @@ async def test_fetch_naip(tmp_path):
     lon = -76.99831
 
     # ~0.01 degrees (~1.1 km) buffer in each direction
-    aoi = box(lon - 0.01, lat - 0.01, lon + 0.01, lat + 0.01)
+    aoi = box(lon - 0.0001, lat - 0.0001, lon + 0.0001, lat + 0.0001)
     aoi_geojson = mapping(aoi)
 
     out_png = tmp_path / "naip_test_img.png"

@@ -10,6 +10,10 @@ from langchain_core.tools import tool
 from pystac_client import Client
 from odc.stac import stac_load
 
+import dotenv
+
+dotenv.load_dotenv()
+
 # PC_STAC_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
 E84_STAC_URL = "https://earth-search.aws.element84.com/v1"
 
