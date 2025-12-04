@@ -1,15 +1,15 @@
-import pytest
-import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
-from uuid import uuid4
+import uuid
 
-from geo_assistant.api.app import app
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
+
 from geo_assistant.agent.graph import create_graph
+from geo_assistant.api.app import app
 
 
 @pytest_asyncio.fixture
 async def initialized_app():
-    """Initialize the app's chatbot before testing"""
+    """Initialize the app's chatbot before testing."""
     # Manually initialize the chatbot as the lifespan would
     app.state.chatbot = await create_graph()
     yield app
@@ -18,13 +18,12 @@ async def initialized_app():
         del app.state.chatbot
 
 
-@pytest.mark.asyncio
 async def test_hello_world(initialized_app):
-    """Hello world test for the API"""
+    """Hello world test for the API."""
     async with AsyncClient(
         transport=ASGITransport(app=initialized_app), base_url="http://test"
     ) as client:
-        thread_id = uuid4()
+        thread_id: uuid.UUID = uuid.uuid4()
         response = await client.post(
             "/chat",
             json={
