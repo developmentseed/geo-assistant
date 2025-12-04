@@ -16,9 +16,9 @@ async def get_search_area(
 ) -> Command:
     """Get a search area buffer in km around the place defined in the agent state."""
 
-    place_feature_collection = state["place"]
+    place_feature = state["place"]
 
-    if not place_feature_collection:
+    if not place_feature:
         return Command(
             update={
                 "messages": [
@@ -30,8 +30,8 @@ async def get_search_area(
             }
         )
 
-    # Convert GeoJSON FeatureCollection to GeoDataFrame
-    gdf = gpd.GeoDataFrame.from_features(place_feature_collection.features)
+    # Convert GeoJSON feature to GeoDataFrame
+    gdf = gpd.GeoDataFrame.from_features(features=[place_feature])
     gdf.crs = "EPSG:4326"
 
     gdf_m = gdf.to_crs(epsg=3857)  # latlon to Web Mercator for meter-based buffering
@@ -41,12 +41,17 @@ async def get_search_area(
     )  # Buffer in meters
     gdf = gdf_m.to_crs(epsg=4326)  # Back to WGS84
 
-    # Convert back to GeoJSON FeatureCollection
-    buffer_feature_collection = gdf.__geo_interface__
+    # Convert back to GeoJSON feature
+    if len(gdf) != 1:
+        raise ValueError(
+            f"{len(gdf)} features found after buffer operation, should be just 1. "
+            "Was a Multi-Point/LineString/Polygon geometry passed in?"
+        )
+    buffer_feature = gdf.iloc[0].geometry.__geo_interface__
 
     return Command(
         update={
-            "search_area": buffer_feature_collection,
+            "search_area": buffer_feature,
             "messages": [
                 ToolMessage(
                     content=f"Created search area geometry buffer of {buffer_size_km} km around the place.",

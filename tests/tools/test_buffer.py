@@ -1,21 +1,16 @@
 from pytest import fixture
 from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.tools.buffer import get_search_area
-from geojson_pydantic import FeatureCollection, Feature, Point
+from geojson_pydantic import Feature, Point
 from langchain_core.tools.base import ToolCall
 
 
 @fixture
 def geo_assistant_fixture():
-    place_geojson = FeatureCollection(
-        type="FeatureCollection",
-        features=[
-            Feature(
-                type="Feature",
-                geometry=Point(type="Point", coordinates=[-9.1393, 38.7223]),
-                properties={"name": "Neighbourhood Cafe Lisbon"},
-            )
-        ],
+    place_geojson = Feature(
+        type="Feature",
+        geometry=Point(type="Point", coordinates=[-9.1393, 38.7223]),
+        properties={"name": "Neighbourhood Cafe Lisbon"},
     )
     return GeoAssistantState(place=place_geojson, search_area=None, messages=[])
 
@@ -42,8 +37,7 @@ async def test_get_search_area(geo_assistant_fixture):
 
     # Verify the buffer was created around the correct place
     search_area = command.update["search_area"]
-    assert search_area["type"] == "FeatureCollection"
-    assert len(search_area["features"]) > 0
+    assert search_area["type"] == "Polygon"
 
     # Verify the message confirms the buffer was created
     assert len(command.update["messages"]) == 1
