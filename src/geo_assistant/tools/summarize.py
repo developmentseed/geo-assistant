@@ -80,21 +80,18 @@ def summarize_sat_img(
     if not img_url or not isinstance(img_url, str):
         raise ValueError("img_url must be a non-empty string")
 
-    try:
-        summary = _SUMMARIZER_AGENT(img_url)
-        message_content = summary.answer
-        artifact = {"img_url": img_url}
+    summary = _SUMMARIZER_AGENT(img_url)
+    message_content = summary.answer
+    artifact = {"img_url": img_url}
 
-        return Command(
-            update={
-                "messages": [
-                    ToolMessage(
-                        content=message_content,
-                        artifact=artifact,
-                        tool_call_id=tool_call_id,
-                    )
-                ]
-            }
-        )
-    except Exception as e:
-        raise RuntimeError(f"Failed to summarize image: {str(e)}")
+    return Command(
+        update={
+            "messages": [
+                ToolMessage(
+                    content=message_content,
+                    artifact=artifact,
+                    tool_call_id=tool_call_id,
+                )
+            ]
+        }
+    )
