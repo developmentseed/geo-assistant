@@ -7,23 +7,26 @@ from langgraph.types import Command
 from langchain_core.messages import ToolMessage
 from langchain_core.tools.base import InjectedToolCallId
 
+
 class SatImgSummary(dspy.Signature):
     "Describe things you see in the satellite image."
+
     img: dspy.Image = dspy.InputField(desc="A satellite image")
     answer: str = dspy.OutputField(desc="Description of the image")
 
+
 class SatImgSummaryAgent(dspy.Module):
     """Agent for generating summaries of satellite images using an LLM."""
-    
+
     def __init__(
-        self, 
-        model: str = "ministral-3:14b-cloud", 
+        self,
+        model: str = "ministral-3:14b-cloud",
         api_base: str = "http://localhost:11434",
         temperature: float = 0.5,
-        max_tokens: int = 4_096
+        max_tokens: int = 4_096,
     ) -> None:
         """Initialize the satellite image summary agent.
-        
+
         Args:
             model: The Ollama model to use for summarization
             api_base: Base URL for the Ollama API
@@ -33,27 +36,29 @@ class SatImgSummaryAgent(dspy.Module):
         super().__init__()
         self.ollama_model = dspy.LM(
             model=f"ollama/{model}",
-            api_base=api_base, 
+            api_base=api_base,
             api_key="",
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
         )
         dspy.configure(lm=self.ollama_model)
         self.summarizer = dspy.Predict(SatImgSummary)
 
     def forward(self, img_url: str) -> dspy.Prediction:
         """Generate a summary for the given image URL.
-        
+
         Args:
             img_url: URL of the image to summarize
-            
+
         Returns:
             dspy.Prediction containing the image summary
         """
         return self.summarizer(img=dspy.Image(img_url))
 
+
 # Singleton instance to avoid repeated initialization
 _SUMMARIZER_AGENT = SatImgSummaryAgent()
+
 
 @tool
 def summarize_sat_img(
@@ -79,16 +84,17 @@ def summarize_sat_img(
         summary = _SUMMARIZER_AGENT(img_url)
         message_content = summary.answer
         artifact = {"img_url": img_url}
-        
+
         return Command(
-            messages=[
-                ToolMessage(
-                    name="summarize_sat_img",
-                    tool_call_id=tool_call_id or "",
-                    content=message_content,
-                    artifact=artifact,
-                )
-            ]
+            update={
+                "messages": [
+                    ToolMessage(
+                        content=message_content,
+                        artifact=artifact,
+                        tool_call_id=tool_call_id,
+                    )
+                ]
+            }
         )
     except Exception as e:
-        raise RuntimeError(f"Failed to summarize image: {str(e)}") from e
+        raise RuntimeError(f"Failed to summarize image: {str(e)}")
