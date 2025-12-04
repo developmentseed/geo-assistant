@@ -1,7 +1,8 @@
-from langchain.agents import AgentState as BaseAgentState
-from geojson_pydantic import FeatureCollection
+from langchain.agents import AgentState
+from geojson_pydantic import Feature
 from typing import Optional
 
 
-class GeoAssistantState(BaseAgentState):
-    place: Optional[FeatureCollection] = None
+class GeoAssistantState(AgentState):
+    place: Optional[Feature]
+    search_area: Optional[Feature]
