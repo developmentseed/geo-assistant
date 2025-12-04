@@ -1,5 +1,5 @@
 # tools/naip_mpc_tools.py
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Annotated
 from pathlib import Path
 
 from concurrent.futures import ThreadPoolExecutor
@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 from langchain_core.tools import tool
 from pystac_client import Client
 from odc.stac import stac_load
+from langgraph.types import Command
+from langchain_core.messages import ToolMessage
+from langchain_core.tools.base import InjectedToolCallId
 
 import dotenv
 
@@ -23,9 +26,8 @@ async def fetch_naip_img(
     aoi_geojson: Dict[str, Any],
     start_date: str,
     end_date: str,
-    out_png_path: str = "naip_rgb.png",
-    resolution: float = 1.0,
-) -> Dict[str, Any]:
+    tool_call_id: Annotated[Optional[str], InjectedToolCallId] = None,
+) -> Command:
     """
     Query Microsoft Planetary Computer for NAIP imagery intersecting an AOI and
     date range, load all matching items into an xarray data cube using odc-stac,
@@ -35,14 +37,7 @@ async def fetch_naip_img(
         aoi_geojson: GeoJSON Polygon/MultiPolygon in EPSG:4326.
         start_date: Start date (YYYY-MM-DD).
         end_date: End date (YYYY-MM-DD).
-        out_png_path: Where to save the PNG relative to the current working dir.
-        resolution: Output pixel size in meters (default ~1 m).
 
-    Returns:
-        Dict with:
-            - stac_item_count: number of NAIP STAC items loaded
-            - dataset_dims: dict of cube dimensions
-            - png_path: filesystem path to the saved PNG (or None if no data)
     """
     # --- 1. STAC search on Element84's EarthSearch API ---
     catalog = Client.open(E84_STAC_URL)
@@ -55,12 +50,17 @@ async def fetch_naip_img(
 
     items = list(search.items())
     if len(items) == 0:
-        return {
-            "stac_item_count": 0,
-            "dataset_dims": {},
-            "png_path": None,
-            "note": "No NAIP items found for the given AOI and date range.",
-        }
+        return Command(
+            update={
+                "messages": [
+                    ToolMessage(
+                        content="No NAIP imagery found for the specified area and date range.",
+                        tool_call_id=tool_call_id,
+                    )
+                ],
+                "naip_png_path": None,
+            }
+        )
 
         # --- 2. Load as xarray cube with odc.stac ---
         # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
@@ -71,16 +71,21 @@ async def fetch_naip_img(
             items,
             bands=["Red", "Green", "Blue"],  # use only RGB
             geopolygon=aoi_geojson,
-            resolution=resolution,
+            resolution=1.0,  # NAIP native ~1 m
             executor=executor,
         )
     if ds.dims.get("time", 0) == 0:
-        return {
-            "stac_item_count": len(items),
-            "dataset_dims": dict(ds.sizes),
-            "png_path": None,
-            "note": "Loaded dataset has no time dimension / pixels.",
-        }
+        return Command(
+            update={
+                "messages": [
+                    ToolMessage(
+                        content="Unable to load NAIP RGB image, dataset has no time dimension",
+                        tool_call_id=tool_call_id,
+                    )
+                ],
+                "naip_png_path": None,
+            }
+        )
 
     # --- 3. Build an RGB composite from the cube ---
     # For the PNG, we’ll just use the first time slice (you can swap in “latest”
@@ -105,12 +110,19 @@ async def fetch_naip_img(
     arr_uint8 = (arr * 255).astype("uint8")
 
     # --- 4. Save PNG ---
-    out_path = Path(out_png_path)
+
+    out_path = Path("naip_rgb.png")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.imsave(out_path.as_posix(), arr_uint8)
 
-    return {
-        "stac_item_count": len(items),
-        "dataset_dims": dict(ds.sizes),
-        "png_path": out_path.as_posix(),
-    }
+    return Command(
+        update={
+            "messages": [
+                ToolMessage(
+                    content=f"NAIP RGB image saved to {out_path.as_posix()}",
+                    tool_call_id=tool_call_id,
+                )
+            ],
+            "naip_png_path": out_path.as_posix(),
+        }
+    )
