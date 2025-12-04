@@ -18,6 +18,26 @@ Edit `.env` to set your configuration:
 
 The application will automatically load these variables from the `.env` file.
 
+## Ollama Setup
+
+Install [Ollama](https://ollama.ai/) and download the required models:
+
+```bash
+ollama pull ministral-3:14b-cloud
+ollama pull gpt-oss:20b-cloud
+```
+
+These models are used for agent and satellite image analysis.
+
+## Data Setup
+
+Download Overture Maps place data:
+
+```bash
+mkdir -p data/overture/places
+aws s3 sync s3://overturemaps-us-west-2/release/2025-11-19.0/theme=places/type=place/ data/overture/places/
+```
+
 ## Development Setup
 
 ### Pre-commit Hooks

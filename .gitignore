@@ -212,3 +212,8 @@ __marimo__/
 # Notebook
 .ipynb_checkpoints
 nbs/*
+!nbs/.gitkeep
+
+# Data
+data/*
+!data/.gitkeep
