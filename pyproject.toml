@@ -35,4 +35,5 @@ build-backend = "hatchling.build"
 packages = ["src/geo_assistant"]
 
 [tool.pytest.ini_options]
+addopts = "--color=yes"
 asyncio_mode = "auto"
