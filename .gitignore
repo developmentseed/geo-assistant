@@ -212,3 +212,10 @@ __marimo__/
 # Notebook
 .ipynb_checkpoints
 nbs/*
+!nbs/.gitkeep
+
+# OSX
+.DS_Store
+# Data
+data/*
+!data/.gitkeep
