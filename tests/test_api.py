@@ -31,6 +31,7 @@ async def test_hello_world(initialized_app):
                 "agent_state_input": {
                     "messages": [{"content": "Hello, world!", "type": "human"}],
                     "place": None,
+                    "search_area": None,
                 },
                 "thread_id": str(thread_id),
             },
