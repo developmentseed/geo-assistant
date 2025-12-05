@@ -6,7 +6,6 @@ from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from typing import Annotated
 from geo_assistant.agent.state import GeoAssistantState
-
 from geojson_pydantic import Feature
 
 
@@ -18,7 +17,7 @@ async def get_search_area(
 ) -> Command:
     """Get a search area buffer in km around the place defined in the agent state."""
 
-    place_feature = state["place"]
+    place_feature = state.get("place")
 
     if not place_feature:
         return Command(
@@ -52,7 +51,7 @@ async def get_search_area(
     buffer_feature = Feature(
         type="Feature",
         geometry=gdf.iloc[0].geometry.__geo_interface__,
-        properties={},
+        properties=place_feature.properties.copy(),
     )
 
     return Command(

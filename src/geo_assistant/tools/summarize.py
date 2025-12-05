@@ -66,7 +66,7 @@ _SUMMARIZER_AGENT = SatImgSummaryAgent()
 
 
 @tool
-def summarize_sat_img(
+async def summarize_sat_img(
     img_url: str,
     tool_call_id: Annotated[Optional[str], InjectedToolCallId] = None,
 ) -> Command:
