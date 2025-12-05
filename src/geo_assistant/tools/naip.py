@@ -91,7 +91,6 @@ async def fetch_naip_img(
     h = int(sizes.get("y", 0))
     w = int(sizes.get("x", 0))
     if h > 512 or w > 512:
-        print("Image too large: ", h, w)
         return Command(
             update={
                 "messages": [
