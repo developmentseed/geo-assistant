@@ -13,7 +13,7 @@ from geo_assistant.tools.naip import fetch_naip_img
 async def test_fetch_naip():
     """
     Integration test: hit MPC STAC for NAIP around Union Market (DC),
-    load imagery via odc-stac, and save an RGB PNG.
+    load imagery via odc-stac, and save an RGB JPEG.
 
     NOTE: This test requires:
       - Internet access (to reach Planetary Computer STAC + blobs)
@@ -44,9 +44,9 @@ async def test_fetch_naip():
     # Call the actual tool - no STAC / odc-stac mocking
     result = await fetch_naip_img.ainvoke(tool_call)
     assert "naip_img_bytes" in result.update
-    assert result.update["naip_img_bytes"] is not None, "Expected PNG bytes in result"
+    assert result.update["naip_img_bytes"] is not None, "Expected JPEG bytes in result"
     assert isinstance(result.update["naip_img_bytes"], str)
-    assert len(result.update["naip_img_bytes"]) > 1, "Expected non-empty PNG bytes"
+    assert len(result.update["naip_img_bytes"]) > 1, "Expected non-empty JPEG bytes"
 
 
 @pytest.mark.asyncio
@@ -85,5 +85,5 @@ async def test_fetch_naip_too_large():
     # Call the actual tool - no STAC / odc-stac mocking
     result = await fetch_naip_img.ainvoke(tool_call)
     assert "naip_img_bytes" in result.update
-    assert result.update["naip_img_bytes"] is None, "Expected no PNG bytes in result"
+    assert result.update["naip_img_bytes"] is None, "Expected no JPEG bytes in result"
     assert isinstance(result.update["naip_img_bytes"], NoneType)
