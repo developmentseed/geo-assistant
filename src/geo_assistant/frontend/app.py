@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import uuid
@@ -68,8 +69,16 @@ def stream_chat(user_message: str):
             for key, value in state.items():
                 if value and isinstance(value, dict) and value.get("type") == "Feature":
                     geojson_features[key] = value
-                    # with st.chat_message("tool"):
-                    #     st.code(json.dumps(value, indent=2), language="json")
+                elif value and isinstance(value, str) and key == "naip_img_bytes":
+                    # Handle base64-encoded PNG data
+                    try:
+                        img_bytes = base64.b64decode(value)
+                        with st.chat_message("tool"):
+                            st.image(img_bytes)
+                    except Exception:
+                        # If decoding fails, fall through to JSON display
+                        with st.chat_message("tool"):
+                            st.code(json.dumps(value, indent=2), language="json")
                 elif value:
                     with st.chat_message("tool"):
                         st.code(json.dumps(value, indent=2), language="json")

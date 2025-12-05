@@ -1,6 +1,5 @@
 from uuid import uuid4
 
-import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
@@ -19,9 +18,8 @@ async def initialized_app():
         del app.state.chatbot
 
 
-@pytest.mark.xfail
-async def test_hello_world(initialized_app):
-    """Hello world test for the API"""
+# @pytest.mark.xfail
+async def test_call_api(initialized_app):
     async with AsyncClient(
         transport=ASGITransport(app=initialized_app),
         base_url="http://test",
@@ -33,7 +31,7 @@ async def test_hello_world(initialized_app):
                 "agent_state_input": {
                     "messages": [
                         {
-                            "content": "Find the Neighbourhood Cafe in Lisbon and buffer 0.5km around it",
+                            "content": "Find The Whitney Hotel Boston and buffer 0.1km around it, then fetch the NAIP imagery for the area from 2021 and summarize the contents of the image.",
                             "type": "human",
                         },
                     ],
@@ -43,6 +41,7 @@ async def test_hello_world(initialized_app):
                 "thread_id": str(thread_id),
             },
         )
+        print(response)
 
         assert response.status_code == 200
         assert response.headers["content-type"] == "application/x-ndjson; charset=utf-8"

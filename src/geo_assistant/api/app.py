@@ -1,4 +1,3 @@
-import json
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import aclosing, asynccontextmanager
@@ -96,7 +95,7 @@ async def stream_chat(
             state = GeoAssistantState(**payload)
             resp = ChatResponse(thread_id=str(thread_id), state=state)
 
-            line = json.dumps(resp.model_dump()) + "\n"
+            line = resp.model_dump_json() + "\n"
             yield line.encode("utf-8")
 
 

@@ -1,7 +1,7 @@
 # tools/naip_mpc_tools.py
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
-from typing import Annotated, Any
+from typing import Annotated
 
 import dotenv
 import matplotlib.pyplot as plt
@@ -10,22 +10,24 @@ import xarray as xr
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
+from langgraph.prebuilt import InjectedState
 from langgraph.types import Command
 from odc.stac import stac_load
 from pystac.extensions.raster import RasterBand
 from pystac_client import Client
 
+from geo_assistant.agent.state import GeoAssistantState
+
 dotenv.load_dotenv()
 
 DATA_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
-# DATA_URL = "https://earth-search.aws.element84.com/v1"
 
 
 @tool("fetch_naip_img")
 async def fetch_naip_img(
-    aoi_geojson: dict[str, Any],
     start_date: str,
     end_date: str,
+    state: Annotated[GeoAssistantState, InjectedState],
     tool_call_id: Annotated[str | None, InjectedToolCallId] = None,
 ) -> Command:
     """
@@ -34,7 +36,6 @@ async def fetch_naip_img(
     and save a simple RGB composite as a PNG.
 
     Args:
-        aoi_geojson: GeoJSON Polygon/MultiPolygon in EPSG:4326.
         start_date: Start date (YYYY-MM-DD).
         end_date: End date (YYYY-MM-DD).
 
@@ -44,7 +45,7 @@ async def fetch_naip_img(
 
     search = catalog.search(
         collections=["naip"],
-        intersects=aoi_geojson,
+        intersects=state["search_area"].geometry,
         datetime=f"{start_date}/{end_date}",
     )
 
@@ -75,12 +76,12 @@ async def fetch_naip_img(
     # --- 2. Load as xarray cube with odc.stac ---
     # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
     # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection
-
+    # Limit to first item for now
     with ThreadPoolExecutor(max_workers=5) as executor:
         ds: xr.Dataset = stac_load(
-            items,
+            items[:1],
             bands=["red", "green", "blue"],  # use only RGB
-            geopolygon=aoi_geojson,
+            geopolygon=state["search_area"].geometry,
             resolution=1.0,  # NAIP native ~1 m
             executor=executor,
             crs=items[0].properties["proj:code"],
