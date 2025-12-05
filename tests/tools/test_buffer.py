@@ -12,7 +12,12 @@ def geo_assistant_fixture():
         geometry=Point(type="Point", coordinates=[-9.1393, 38.7223]),
         properties={"name": "Neighbourhood Cafe Lisbon"},
     )
-    return GeoAssistantState(place=place_geojson, search_area=None, messages=[])
+    return GeoAssistantState(
+        place=place_geojson,
+        search_area=None,
+        messages=[],
+        naip_png_path="path/to/naip.png",
+    )
 
 
 async def test_get_search_area(geo_assistant_fixture):

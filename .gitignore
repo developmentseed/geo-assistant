@@ -209,6 +209,7 @@ __marimo__/
 # VSCode
 .vscode/
 
+**.DS_Store
 # Notebook
 .ipynb_checkpoints
 nbs/*
