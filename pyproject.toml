@@ -59,8 +59,21 @@ asyncio_mode = "auto"
 [tool.ruff.lint]
 select = [
     "COM",  # flake8-commas
+    "D",    # pydocstyle
     "F",    # pyflakes
     "I",    # isort
     "RUF",  # ruff-specific
     "UP",   # pyupgrade
 ]
+extend-select = [
+    "D213",     # Summary lines should be positioned on the second physical line of the docstring.
+    "D410",     # A blank line after section headings.
+]
+ignore = [
+      "D212",     # Multi-line docstring summary should start at the first line
+]
+
+[tool.ruff.lint.pydocstyle]
+# See https://docs.astral.sh/ruff/faq/#does-ruff-support-numpy-or-google-style-docstrings
+# for the enabled/disabled rules for the "google" convention.
+convention = "google"
