@@ -149,8 +149,8 @@ async def get_places_within_buffer(
     # Create GeoDataFrame
     gdf = gpd.GeoDataFrame(places_df, geometry="geometry", crs="EPSG:4326")
 
-    # Convert to GeoJSON FeatureCollection in one line!
-    feature_collection = gdf.__geo_interface__
+    # Convert to GeoJSON FeatureCollection and ensure no numpy arrays
+    feature_collection = json.loads(json.dumps(gdf.__geo_interface__, default=str))
 
     return Command(
         update={
