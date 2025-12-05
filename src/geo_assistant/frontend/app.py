@@ -67,7 +67,11 @@ def stream_chat(user_message: str):
             # Check for GeoJSON features and render map if present
             geojson_features = {}
             for key, value in state.items():
-                if value and isinstance(value, dict) and value.get("type") == "Feature":
+                if (
+                    value
+                    and isinstance(value, dict)
+                    and value.get("type") in ["Feature", "FeatureCollection"]
+                ):
                     geojson_features[key] = value
                 elif value and isinstance(value, str) and key == "naip_img_bytes":
                     # Handle base64-encoded jpeg data
@@ -107,13 +111,20 @@ def stream_chat(user_message: str):
 
                 # Calculate center from all features
                 all_lons, all_lats = [], []
-                for feature in geojson_features.values():
-                    geom = feature.get("geometry", {})
-                    coords = get_coords_from_geometry(geom)
-                    for coord in coords:
-                        if len(coord) >= 2:
-                            all_lons.append(coord[0])
-                            all_lats.append(coord[1])
+                for feature_data in geojson_features.values():
+                    # Handle both Feature and FeatureCollection
+                    if feature_data.get("type") == "FeatureCollection":
+                        features = feature_data.get("features", [])
+                    else:
+                        features = [feature_data]
+
+                    for feature in features:
+                        geom = feature.get("geometry", {})
+                        coords = get_coords_from_geometry(geom)
+                        for coord in coords:
+                            if len(coord) >= 2:
+                                all_lons.append(coord[0])
+                                all_lats.append(coord[1])
 
                 if all_lons and all_lats:
                     center_lat = sum(all_lats) / len(all_lats)
@@ -124,7 +135,11 @@ def stream_chat(user_message: str):
                 m = folium.Map(location=[center_lat, center_lon], zoom_start=10)
 
                 # Add features to map with different colors
-                colors = {"place": "blue", "search_area": "red"}
+                colors = {
+                    "place": "blue",
+                    "search_area": "red",
+                    "places_within_buffer": "green",
+                }
 
                 def make_style_function(color):
                     """Create a style function with the given color."""
@@ -135,13 +150,26 @@ def stream_chat(user_message: str):
                         "fillOpacity": 0.3,
                     }
 
-                for key, feature in geojson_features.items():
-                    color = colors.get(key, "green")
-                    folium.GeoJson(
-                        feature,
-                        style_function=make_style_function(color),
-                        tooltip=key,
-                    ).add_to(m)
+                for key, feature_data in geojson_features.items():
+                    color = colors.get(key, "purple")
+
+                    # Handle both Feature and FeatureCollection
+                    if feature_data.get("type") == "FeatureCollection":
+                        # For FeatureCollections, add each feature with a popup showing its name
+                        for feature in feature_data.get("features", []):
+                            name = feature.get("properties", {}).get("name", key)
+                            folium.GeoJson(
+                                feature,
+                                style_function=make_style_function(color),
+                                tooltip=name,
+                            ).add_to(m)
+                    else:
+                        # For single Features
+                        folium.GeoJson(
+                            feature_data,
+                            style_function=make_style_function(color),
+                            tooltip=key,
+                        ).add_to(m)
 
                 # Fit map to bounds if we have coordinates
                 if all_lons and all_lats:

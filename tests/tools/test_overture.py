@@ -1,9 +1,14 @@
 import os
 
+import geopandas as gpd
 import pytest
+from geojson_pydantic import Feature, Point
 from langchain_core.tools.base import ToolCall
+from shapely.geometry import Point as ShapelyPoint
 
+from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.tools.overture import get_place
+from src.geo_assistant.tools.overture import get_places_within_buffer
 
 
 @pytest.fixture(autouse=True)
@@ -18,6 +23,39 @@ def setup_ci_env():
     yield
 
 
+@pytest.fixture
+def geo_assistant_with_buffer_fixture():
+    """Fixture with a point at (-9.1393, 38.7223) and 0.5km buffer as search_area."""
+    place_geojson = Feature(
+        type="Feature",
+        geometry=Point(type="Point", coordinates=[-9.1393, 38.7223]),
+        properties={"name": "Neighbourhood Cafe Lisbon"},
+    )
+    gdf = gpd.GeoDataFrame(
+        [{"geometry": ShapelyPoint(-9.1393, 38.7223)}],
+        crs="EPSG:4326",
+    )
+
+    # Convert to Web Mercator for meter-based buffering
+    gdf_m = gdf.to_crs(epsg=3857)
+    gdf_m["geometry"] = gdf_m["geometry"].buffer(500)  # 0.5km = 500m
+
+    # Convert back to WGS84
+    gdf_buffered = gdf_m.to_crs(epsg=4326)
+
+    # Get the buffered geometry as GeoJSON
+    search_area_geojson = Feature(
+        type="Feature",
+        geometry=gdf_buffered.iloc[0].geometry.__geo_interface__,
+        properties={},
+    )
+    return GeoAssistantState(
+        place=place_geojson,
+        search_area=search_area_geojson,
+        messages=[],
+    )
+
+
 async def test_get_place():
     command = await get_place.ainvoke(
         ToolCall(
@@ -28,3 +66,20 @@ async def test_get_place():
         ),
     )
     assert "place" in command.update
+
+
+async def test_get_places_within_buffer(geo_assistant_with_buffer_fixture):
+    command = await get_places_within_buffer.ainvoke(
+        ToolCall(
+            name="get_places_within_buffer",
+            type="tool_call",
+            id="test_id_places_within_buffer",
+            args={
+                "place": "cafe",
+                "state": geo_assistant_with_buffer_fixture,
+                "tool_call_id": "test_id_places_within_buffer",
+            },
+        ),
+    )
+
+    assert "places_within_buffer" in command.update
