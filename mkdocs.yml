@@ -24,6 +24,7 @@ nav:
   - Home: index.md
   - Tools: tools/index.md
   - Agents: agents/index.md
+  - API: api/index.md
 
 watch:
   - docs
