@@ -26,6 +26,7 @@ dependencies = [
     "dspy>=3.0.4",
     "watchdog>=6.0.0",
     "folium>=0.15.0",
+    "lancedb>=0.25.3",
 ]
 
 [dependency-groups]

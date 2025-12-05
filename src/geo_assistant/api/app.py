@@ -12,6 +12,7 @@ from pydantic import UUID4
 from geo_assistant.agent.graph import create_graph
 from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.api.schemas.chat import ChatRequestBody, ChatResponse
+from geo_assistant.utils.rag_database import create_rag_database
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,10 @@ UI_SET_FIELDS_WHITELIST = ["point", "messages"]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.chatbot = await create_graph()
+    app.state.rag_database = await create_rag_database()
     yield
+
+    # TODO: clear rag database? Or cache for next time?
 
 
 app = FastAPI(title="Geo Assistant", lifespan=lifespan)
