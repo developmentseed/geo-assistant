@@ -22,6 +22,8 @@ extra:
 
 nav:
   - Home: index.md
+  - Tools: tools/index.md
+  - Agents: agents/index.md
 
 watch:
   - docs
