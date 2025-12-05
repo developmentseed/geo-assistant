@@ -8,6 +8,7 @@ from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
 from langgraph.types import Command
+from geojson_pydantic import Feature
 
 # Load environment variables
 load_dotenv()
@@ -71,15 +72,15 @@ async def get_place(
 
     geometry = json.loads(location_results[0][-1])
 
-    feature = {
-        "type": "Feature",
-        "geometry": geometry,
-        "properties": {
+    feature = Feature(
+        type="Feature",
+        geometry=geometry,
+        properties={
             "overture_id": location_results[0][0],
             "name": location_results[0][2],
             "socials": location_results[0][4],
         },
-    }
+    )
 
     return Command(
         update={

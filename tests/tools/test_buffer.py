@@ -37,4 +37,4 @@ async def test_get_search_area(geo_assistant_fixture):
 
     # Verify the buffer was created around the correct place
     search_area = command.update["search_area"]
-    assert search_area["type"] == "Polygon"
+    assert search_area.geometry.type == "Polygon"

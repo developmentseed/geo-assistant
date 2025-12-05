@@ -51,7 +51,7 @@ async def get_search_area(
     buffer_feature = Feature(
         type="Feature",
         geometry=gdf.iloc[0].geometry.__geo_interface__,
-        properties=place_feature["properties"].copy(),
+        properties=place_feature.properties.copy(),
     )
 
     return Command(
