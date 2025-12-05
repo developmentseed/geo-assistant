@@ -29,8 +29,14 @@ async def test_hello_world(initialized_app):
             "/chat",
             json={
                 "agent_state_input": {
-                    "messages": [{"content": "Hello, world!", "type": "human"}],
+                    "messages": [
+                        {
+                            "content": "Find the Neighbourhood Cafe in Lisbon and buffer 0.5km around it",
+                            "type": "human",
+                        }
+                    ],
                     "place": None,
+                    "search_area": None,
                 },
                 "thread_id": str(thread_id),
             },

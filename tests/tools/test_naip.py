@@ -3,6 +3,7 @@ from pathlib import Path
 from shapely.geometry import box, mapping
 from langchain_core.tools.base import ToolCall
 import os
+
 from geo_assistant.tools.naip import fetch_naip_img
 
 

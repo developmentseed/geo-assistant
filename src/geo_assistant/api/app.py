@@ -92,11 +92,8 @@ async def stream_chat(
 
             agent = next(iter(update.keys()))
             payload = update[agent]
-            if "place" not in payload:  # TODO: why is this needed?
-                payload["place"] = None
-            state_payload = GeoAssistantState(**payload)
-
-            resp = ChatResponse(thread_id=str(thread_id), state=state_payload)
+            state = GeoAssistantState(**payload)
+            resp = ChatResponse(thread_id=str(thread_id), state=state)
 
             line = json.dumps(resp.model_dump()) + "\n"
             yield line.encode("utf-8")
