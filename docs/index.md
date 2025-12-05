@@ -4,6 +4,8 @@ The Geo Assistant agent is a LangGraph-based [ReAct agent](https://arxiv.org/abs
 
 ## Architecture
 
+<img src="assets/architecture.png" alt="Architecture" width="100%" style="max-width: 400px;">
+
 The agent follows the ReAct (Reasoning + Acting) pattern, which interleaves reasoning traces and task-specific actions to solve queries. It uses LangGraph to manage state transitions and tool execution.
 
 ## Available Tools
