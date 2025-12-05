@@ -20,6 +20,7 @@ dependencies = [
     "geopandas>=1.1.1",
     "dspy>=3.0.4",
     "watchdog>=6.0.0",
+    "folium>=0.15.0",
 ]
 
 [dependency-groups]

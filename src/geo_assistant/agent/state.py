@@ -1,8 +1,8 @@
 from langchain.agents import AgentState
 from geojson_pydantic import Feature
-from typing import Optional
+from typing_extensions import NotRequired
 
 
 class GeoAssistantState(AgentState):
-    place: Optional[Feature]
-    search_area: Optional[Feature]
+    place: NotRequired[Feature | None] = None
+    search_area: NotRequired[Feature | None] = None
