@@ -28,9 +28,9 @@ async def get_search_area(
                     ToolMessage(
                         content="No place defined in the agent state to create a search area around.",
                         tool_call_id=tool_call_id,
-                    )
+                    ),
                 ],
-            }
+            },
         )
 
     # Convert GeoJSON feature to GeoDataFrame
@@ -40,7 +40,7 @@ async def get_search_area(
     gdf_m = gdf.to_crs(epsg=3857)  # latlon to Web Mercator for meter-based buffering
 
     gdf_m["geometry"] = gdf_m["geometry"].buffer(
-        buffer_size_km * 1000
+        buffer_size_km * 1000,
     )  # Buffer in meters
     gdf = gdf_m.to_crs(epsg=4326)  # Back to WGS84
 
@@ -48,7 +48,7 @@ async def get_search_area(
     if len(gdf) != 1:
         raise ValueError(
             f"{len(gdf)} features found after buffer operation, should be just 1. "
-            "Was a Multi-Point/LineString/Polygon geometry passed in?"
+            "Was a Multi-Point/LineString/Polygon geometry passed in?",
         )
     buffer_feature = Feature(
         type="Feature",
@@ -63,7 +63,7 @@ async def get_search_area(
                 ToolMessage(
                     content=f"Created search area geometry buffer of {buffer_size_km} km around the place.",
                     tool_call_id=tool_call_id,
-                )
+                ),
             ],
-        }
+        },
     )

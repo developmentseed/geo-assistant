@@ -48,7 +48,7 @@ async def stream_chat(
     config: dict[str, Any] = {
         "configurable": {
             "thread_id": str(thread_id),
-        }
+        },
     }
 
     state_updates = {}
@@ -70,7 +70,7 @@ async def stream_chat(
                     {
                         "content": f"Manually selected data for field {key}: {description}",
                         "type": "human",
-                    }
+                    },
                 )
 
     # Add UI messages to the existing messages if they exist

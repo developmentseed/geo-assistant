@@ -50,6 +50,7 @@ asyncio_mode = "auto"
 
 [tool.ruff.lint]
 select = [
+    "COM",  # flake8-commas
     "F",    # pyflakes
     "I",    # isort
     "RUF",  # ruff-specific

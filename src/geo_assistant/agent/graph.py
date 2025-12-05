@@ -37,7 +37,7 @@ async def create_graph():
             summarize_sat_img,
         ],
         system_prompt=SYSTEM_PROMPT.format(
-            now=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            now=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         ),
         state_schema=GeoAssistantState,
         checkpointer=checkpointer,

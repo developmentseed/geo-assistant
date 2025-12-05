@@ -55,10 +55,10 @@ async def fetch_naip_img(
                     ToolMessage(
                         content="No NAIP imagery found for the specified area and date range.",
                         tool_call_id=tool_call_id,
-                    )
+                    ),
                 ],
                 "naip_png_path": None,
-            }
+            },
         )
 
         # --- 2. Load as xarray cube with odc.stac ---
@@ -80,10 +80,10 @@ async def fetch_naip_img(
                     ToolMessage(
                         content="Unable to load NAIP RGB image, dataset has no time dimension",
                         tool_call_id=tool_call_id,
-                    )
+                    ),
                 ],
                 "naip_png_path": None,
-            }
+            },
         )
 
     # --- 3. Build an RGB composite from the cube ---
@@ -120,8 +120,8 @@ async def fetch_naip_img(
                 ToolMessage(
                     content=f"NAIP RGB image saved to {out_path.as_posix()}",
                     tool_call_id=tool_call_id,
-                )
+                ),
             ],
             "naip_png_path": out_path.as_posix(),
-        }
+        },
     )

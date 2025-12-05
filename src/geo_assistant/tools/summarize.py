@@ -96,7 +96,7 @@ async def summarize_sat_img(
                     content=message_content,
                     artifact=artifact,
                     tool_call_id=tool_call_id,
-                )
-            ]
-        }
+                ),
+            ],
+        },
     )

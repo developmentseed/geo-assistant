@@ -23,7 +23,8 @@ async def initialized_app():
 async def test_hello_world(initialized_app):
     """Hello world test for the API"""
     async with AsyncClient(
-        transport=ASGITransport(app=initialized_app), base_url="http://test"
+        transport=ASGITransport(app=initialized_app),
+        base_url="http://test",
     ) as client:
         thread_id = uuid4()
         response = await client.post(
@@ -34,7 +35,7 @@ async def test_hello_world(initialized_app):
                         {
                             "content": "Find the Neighbourhood Cafe in Lisbon and buffer 0.5km around it",
                             "type": "human",
-                        }
+                        },
                     ],
                     "place": None,
                     "search_area": None,
