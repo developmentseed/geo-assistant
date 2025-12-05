@@ -1,20 +1,19 @@
 # tools/naip_mpc_tools.py
-from typing import Dict, Any, Optional, Annotated
-from io import BytesIO
 from concurrent.futures import ThreadPoolExecutor
-import numpy as np
-import xarray as xr
-import matplotlib.pyplot as plt
-from langchain_core.tools import tool
-from pystac_client import Client
-from odc.stac import stac_load
-from langgraph.types import Command
-from langchain_core.messages import ToolMessage
-from langchain_core.tools.base import InjectedToolCallId
-from pystac.extensions.raster import RasterBand
-
+from io import BytesIO
+from typing import Annotated, Any
 
 import dotenv
+import matplotlib.pyplot as plt
+import numpy as np
+import xarray as xr
+from langchain_core.messages import ToolMessage
+from langchain_core.tools import tool
+from langchain_core.tools.base import InjectedToolCallId
+from langgraph.types import Command
+from odc.stac import stac_load
+from pystac.extensions.raster import RasterBand
+from pystac_client import Client
 
 dotenv.load_dotenv()
 
@@ -24,10 +23,10 @@ DATA_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
 
 @tool("fetch_naip_img")
 async def fetch_naip_img(
-    aoi_geojson: Dict[str, Any],
+    aoi_geojson: dict[str, Any],
     start_date: str,
     end_date: str,
-    tool_call_id: Annotated[Optional[str], InjectedToolCallId] = None,
+    tool_call_id: Annotated[str | None, InjectedToolCallId] = None,
 ) -> Command:
     """
     Query Microsoft Planetary Computer for NAIP imagery intersecting an AOI and
@@ -67,10 +66,10 @@ async def fetch_naip_img(
                     ToolMessage(
                         content="No NAIP imagery found for the specified area and date range.",
                         tool_call_id=tool_call_id,
-                    )
+                    ),
                 ],
-                "naip_img_bytes": None,
-            }
+                "naip_png_path": None,
+            },
         )
 
     # --- 2. Load as xarray cube with odc.stac ---
@@ -94,10 +93,10 @@ async def fetch_naip_img(
                     ToolMessage(
                         content="Unable to load NAIP RGB image, dataset has no time dimension",
                         tool_call_id=tool_call_id,
-                    )
+                    ),
                 ],
                 "naip_img_bytes": None,
-            }
+            },
         )
 
     # Enforce max output size based on dataset sizes (y, x)
@@ -111,14 +110,14 @@ async def fetch_naip_img(
                     ToolMessage(
                         content=f"NAIP RGB image {w}x{h} exceeds 512x512 limit. Skipping image output.",
                         tool_call_id=tool_call_id,
-                    )
+                    ),
                 ],
                 "naip_img_bytes": None,
-            }
+            },
         )
 
     # --- 3. Build an RGB composite from the cube ---
-    # For the PNG, we’ll just use the first time slice (you can swap in “latest”
+    # For the PNG, we'll just use the first time slice (you can swap in “latest”
     # or a temporal reduction if you prefer).
     red = ds["red"].isel(time=0)
     green = ds["green"].isel(time=0)
@@ -152,9 +151,8 @@ async def fetch_naip_img(
                 ToolMessage(
                     content="NAIP RGB image fetched and encoded as PNG bytes.",
                     tool_call_id=tool_call_id,
-                )
+                ),
             ],
-            # This is what your downstream tool should consume
             "naip_img_bytes": img_bytes,
-        }
+        },
     )

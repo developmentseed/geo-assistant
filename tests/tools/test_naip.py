@@ -1,7 +1,8 @@
 from types import NoneType
+
 import pytest
-from shapely.geometry import box, mapping
 from langchain_core.tools.base import ToolCall
+from shapely.geometry import box, mapping
 
 from geo_assistant.tools.naip import fetch_naip_img
 
@@ -18,7 +19,7 @@ async def test_fetch_naip():
     """
 
     # Union Market coordinates from GeoNames: 38.90789, -76.99831
-    #   N 38°54′28″  W 76°59′54″
+    #   N 38°54'28"  W 76°59'54"
     # We'll use a small neighborhood AOI around that point.
     lat = 38.90789
     lon = -76.99831
@@ -38,7 +39,7 @@ async def test_fetch_naip():
         id="test_tool_call_id",
     )
 
-    # Call the actual tool – no STAC / odc-stac mocking
+    # Call the actual tool - no STAC / odc-stac mocking
     result = await fetch_naip_img.ainvoke(tool_call)
     assert "naip_img_bytes" in result.update
     assert result.update["naip_img_bytes"] is not None, "Expected PNG bytes in result"
@@ -59,9 +60,8 @@ async def test_fetch_naip_too_large():
     """
 
     # Union Market coordinates from GeoNames: 38.90789, -76.99831
-    #   N 38°54′28″  W 76°59′54″
+    #   N 38°54'28"  W 76°59'54"
     # We'll use a small neighborhood AOI around that point.
-    # :contentReference[oaicite:0]{index=0}
     lat = 38.90789
     lon = -76.99831
 
@@ -80,7 +80,7 @@ async def test_fetch_naip_too_large():
         id="test_tool_call_id",
     )
 
-    # Call the actual tool – no STAC / odc-stac mocking
+    # Call the actual tool - no STAC / odc-stac mocking
     result = await fetch_naip_img.ainvoke(tool_call)
     assert "naip_img_bytes" in result.update
     assert result.update["naip_img_bytes"] is None, "Expected no PNG bytes in result"
