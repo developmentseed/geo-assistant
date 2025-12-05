@@ -7,6 +7,8 @@ from langchain_core.tools import tool
 from typing import Annotated
 from geo_assistant.agent.state import GeoAssistantState
 
+from geojson_pydantic import Feature
+
 
 @tool
 async def get_search_area(
@@ -47,7 +49,11 @@ async def get_search_area(
             f"{len(gdf)} features found after buffer operation, should be just 1. "
             "Was a Multi-Point/LineString/Polygon geometry passed in?"
         )
-    buffer_feature = gdf.iloc[0].geometry.__geo_interface__
+    buffer_feature = Feature(
+        type="Feature",
+        geometry=gdf.iloc[0].geometry.__geo_interface__,
+        properties={},
+    )
 
     return Command(
         update={
