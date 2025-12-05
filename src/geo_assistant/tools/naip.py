@@ -1,5 +1,5 @@
 # tools/naip_mpc_tools.py
-from typing import Dict, Any, Optional, Annotated
+from typing import Any, Annotated
 from pathlib import Path
 
 from concurrent.futures import ThreadPoolExecutor
@@ -23,10 +23,10 @@ E84_STAC_URL = "https://earth-search.aws.element84.com/v1"
 
 @tool("fetch_naip_img")
 async def fetch_naip_img(
-    aoi_geojson: Dict[str, Any],
+    aoi_geojson: dict[str, Any],
     start_date: str,
     end_date: str,
-    tool_call_id: Annotated[Optional[str], InjectedToolCallId] = None,
+    tool_call_id: Annotated[str | None, InjectedToolCallId] = None,
 ) -> Command:
     """
     Query Microsoft Planetary Computer for NAIP imagery intersecting an AOI and

@@ -1,6 +1,7 @@
 import json
 from contextlib import aclosing, asynccontextmanager
-from typing import Any, AsyncGenerator, Dict
+from typing import Any
+from collections.abc import AsyncGenerator
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -44,7 +45,7 @@ async def stream_chat(
     chatbot: Any,
     request: Request,
 ) -> AsyncGenerator[bytes, None]:
-    config: Dict[str, Any] = {
+    config: dict[str, Any] = {
         "configurable": {
             "thread_id": str(thread_id),
         }

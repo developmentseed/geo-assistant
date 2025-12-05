@@ -68,7 +68,7 @@ _SUMMARIZER_AGENT = SatImgSummaryAgent()
 @tool
 async def summarize_sat_img(
     img_url: str,
-    tool_call_id: Annotated[Optional[str], InjectedToolCallId] = None,
+    tool_call_id: Annotated[str | None, InjectedToolCallId] = None,
 ) -> Command:
     """Summarize the contents of a satellite image using an LLM.
 

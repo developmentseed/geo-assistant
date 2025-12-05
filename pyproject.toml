@@ -47,3 +47,8 @@ packages = ["src/geo_assistant"]
 [tool.pytest.ini_options]
 addopts = "--color=yes"
 asyncio_mode = "auto"
+
+[tool.ruff.lint]
+select = [
+    "UP",   # pyupgrade
+]

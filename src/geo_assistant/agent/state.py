@@ -1,6 +1,6 @@
 from langchain.agents import AgentState
 from geojson_pydantic import Feature
-from typing_extensions import NotRequired
+from typing import NotRequired
 from pydantic import Field
 
 
