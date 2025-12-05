@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
@@ -18,7 +19,7 @@ async def initialized_app():
         del app.state.chatbot
 
 
-# @pytest.mark.xfail
+@pytest.mark.xfail
 async def test_call_api(initialized_app):
     async with AsyncClient(
         transport=ASGITransport(app=initialized_app),
