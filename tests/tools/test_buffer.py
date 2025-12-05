@@ -17,7 +17,7 @@ def geo_assistant_fixture():
         place=place_geojson,
         search_area=None,
         messages=[],
-        naip_png_path="path/to/naip.png",
+        naip_img_bytes=None,
     )
 
 
