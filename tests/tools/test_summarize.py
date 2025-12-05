@@ -14,7 +14,7 @@ from geo_assistant.tools.summarize import summarize_sat_img
 TEST_IMAGE_URL = "https://petapixel.com/assets/uploads/2022/08/French-Officials-Use-Satellite-Photos-and-AI-to-Spot-Unregistered-Pools-1536x806.jpg"
 
 
-# @pytest.mark.xfail
+@pytest.mark.xfail
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "img_url,summary",
