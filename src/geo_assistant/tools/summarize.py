@@ -1,7 +1,7 @@
 """Tools for summarizing satellite images using LLM-based analysis."""
 
 import os
-from typing import Annotated, Optional
+from typing import Annotated
 import dspy
 from langchain_core.tools import tool
 from langgraph.types import Command

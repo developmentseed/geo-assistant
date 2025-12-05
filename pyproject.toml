@@ -50,5 +50,6 @@ asyncio_mode = "auto"
 
 [tool.ruff.lint]
 select = [
+    "F",    # pyflakes
     "UP",   # pyupgrade
 ]
