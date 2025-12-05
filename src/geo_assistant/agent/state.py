@@ -1,3 +1,5 @@
+"""State schema for the geo-assistant agent."""
+
 from typing import NotRequired
 
 from geojson_pydantic import Feature

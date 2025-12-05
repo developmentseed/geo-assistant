@@ -1,3 +1,5 @@
+"""Tests for NAIP tool."""
+
 from types import NoneType
 
 import pytest

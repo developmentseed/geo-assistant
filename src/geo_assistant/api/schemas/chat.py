@@ -1,3 +1,5 @@
+"""Chat API schemas."""
+
 from pydantic import BaseModel
 
 from geo_assistant.agent.state import GeoAssistantState

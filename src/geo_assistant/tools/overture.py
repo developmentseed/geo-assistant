@@ -1,3 +1,5 @@
+"""Tool to find closest matching Overture place based on user input."""
+
 import json
 import os
 from typing import Annotated

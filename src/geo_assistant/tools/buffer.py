@@ -1,3 +1,5 @@
+"""Tool to create a buffer polygon around a geometry feature."""
+
 from typing import Annotated
 
 import geopandas as gpd

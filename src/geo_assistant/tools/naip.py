@@ -1,4 +1,5 @@
-# tools/naip_mpc_tools.py
+"""Tool to query Planetary Computer STAC API for NAIP imagery."""
+
 import base64
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
