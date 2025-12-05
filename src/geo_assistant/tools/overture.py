@@ -3,6 +3,7 @@ import os
 from typing import Annotated, Literal
 
 import duckdb
+import geopandas as gpd
 from dotenv import load_dotenv
 from geojson_pydantic import Feature
 from langchain_core.messages import ToolMessage
@@ -10,6 +11,7 @@ from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
 from langgraph.prebuilt import InjectedState
 from langgraph.types import Command
+from shapely.geometry import shape
 
 from geo_assistant.agent.state import GeoAssistantState
 
@@ -109,7 +111,6 @@ def get_places_within_buffer(
 
     # get bounds of buffered place
     search_area = state["search_area"]
-    xmin, ymin, xmax, ymax = search_area["bbox"]
 
     db_connection = create_database_connection()
     source = os.getenv("OVERTURE_SOURCE", "local")
@@ -119,48 +120,43 @@ def get_places_within_buffer(
     else:
         data_path = os.getenv("OVERTURE_LOCAL_PATH")
 
-    places_results = db_connection.execute(
+    places_df = db_connection.execute(
         f"""
-            LOAD spatial;
-            SELECT
-                id,
-                names.primary AS name,
-                confidence,
-                CAST(socials AS JSON) AS socials,
-                ST_AsGeoJSON(geometry) AS geometry,
-            FROM read_parquet(
-                '{data_path}',
-                filename=true,
-                hive_partitioning=1
-            )
-            WHERE geometry && ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326)
-            AND types.primary = '{place}';
-            LIMIT 10;
+        LOAD spatial;
+        SELECT
+            id,
+            names.primary AS name,
+            confidence,
+            CAST(socials AS JSON) AS socials,
+            ST_AsGeoJSON(geometry) AS geometry,
+            websites,
+            socials,
+            categories
+        FROM read_parquet(
+            '{data_path}',
+            filename=true,
+            hive_partitioning=1
+        )
+        WHERE ST_Intersects(geometry, ST_GeomFromGeoJSON('{json.dumps(search_area.geometry.model_dump())}'))
+        AND categories.primary = '{place}'
+        LIMIT 10;
         """,
-    ).fetchall()
+    ).fetchdf()
 
-    geoms = json.loads(places_results[x][-1] for x in range(len(places_results)))
-    names = [places_results[x][2] for x in range(len(places_results))]
-    ids = [places_results[x][0] for x in range(len(places_results))]
+    db_connection.close()
 
-    # Create FeatureCollection
-    feature_collection = {
-        "type": "FeatureCollection",
-        "features": [
-            {
-                "type": "Feature",
-                "geometry": geoms,
-                "properties": {
-                    "name": names,
-                    "overture_id": ids,
-                },
-            },
-        ],
-    }
+    # Convert geometry column from GeoJSON strings to shapely geometries
+    places_df["geometry"] = places_df["geometry"].apply(lambda x: shape(json.loads(x)))
+
+    # Create GeoDataFrame
+    gdf = gpd.GeoDataFrame(places_df, geometry="geometry", crs="EPSG:4326")
+
+    # Convert to GeoJSON FeatureCollection in one line!
+    feature_collection = gdf.__geo_interface__
 
     return Command(
         update={
-            "place": feature_collection,
+            "places_within_buffer": feature_collection,
             "messages": [
                 ToolMessage(
                     content="Found places based on user query",

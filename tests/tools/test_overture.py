@@ -2,9 +2,9 @@ import os
 
 import geopandas as gpd
 import pytest
-from geojson_pydantic import Feature
+from geojson_pydantic import Feature, Point
 from langchain_core.tools.base import ToolCall
-from shapely.geometry import Point
+from shapely.geometry import Point as ShapelyPoint
 
 from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.tools.overture import get_place
@@ -31,7 +31,10 @@ def geo_assistant_with_buffer_fixture():
         geometry=Point(type="Point", coordinates=[-9.1393, 38.7223]),
         properties={"name": "Neighbourhood Cafe Lisbon"},
     )
-    gdf = gpd.GeoDataFrame([{"geometry": Point(-9.1393, 38.7223)}], crs="EPSG:4326")
+    gdf = gpd.GeoDataFrame(
+        [{"geometry": ShapelyPoint(-9.1393, 38.7223)}],
+        crs="EPSG:4326",
+    )
 
     # Convert to Web Mercator for meter-based buffering
     gdf_m = gdf.to_crs(epsg=3857)
@@ -41,8 +44,11 @@ def geo_assistant_with_buffer_fixture():
     gdf_buffered = gdf_m.to_crs(epsg=4326)
 
     # Get the buffered geometry as GeoJSON
-    search_area_geojson = gdf_buffered.iloc[0].geometry.__geo_interface__
-
+    search_area_geojson = Feature(
+        type="Feature",
+        geometry=gdf_buffered.iloc[0].geometry.__geo_interface__,
+        properties={},
+    )
     return GeoAssistantState(
         place=place_geojson,
         search_area=search_area_geojson,
@@ -62,7 +68,7 @@ async def test_get_place():
     assert "place" in command.update
 
 
-def test_get_places_within_buffer():
+def test_get_places_within_buffer(geo_assistant_with_buffer_fixture):
     command = get_places_within_buffer.invoke(
         ToolCall(
             name="get_places_within_buffer",
