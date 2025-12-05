@@ -4,6 +4,7 @@ from typing import Annotated
 
 import duckdb
 import geopandas as gpd
+import numpy as np
 from dotenv import load_dotenv
 from geojson_pydantic import Feature, FeatureCollection
 from langchain_core.messages import ToolMessage
@@ -139,9 +140,11 @@ def _format_places_within_buffer_message(gdf: gpd.GeoDataFrame) -> str:
         name = row.get("name", "Unknown")
         websites = row.get("websites")
 
-        # Extract first website if it's a non-empty list
+        # Handle case where websites might not be present
         website = (
-            websites[0] if isinstance(websites, list) and len(websites) > 0 else None
+            websites[0]
+            if isinstance(websites, np.ndarray) and len(websites) > 0
+            else None
         )
 
         if website:
