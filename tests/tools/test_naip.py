@@ -1,8 +1,6 @@
 import pytest
-from pathlib import Path
 from shapely.geometry import box, mapping
 from langchain_core.tools.base import ToolCall
-import os
 
 from geo_assistant.tools.naip import fetch_naip_img
 
@@ -42,9 +40,7 @@ async def test_fetch_naip():
 
     # Call the actual tool – no STAC / odc-stac mocking
     result = await fetch_naip_img.ainvoke(tool_call)
-    assert "naip_png_path" in result.update
-    assert result.update["naip_png_path"] is not None, "Expected a PNG path in result"
-    png_path = Path(result.update["naip_png_path"])
-
-    assert png_path.is_file(), f"PNG was not created at {png_path}"
-    os.remove(png_path)  # Clean up after ourselves
+    assert "naip_img_bytes" in result.update
+    assert result.update["naip_img_bytes"] is not None, "Expected PNG bytes in result"
+    assert isinstance(result.update["naip_img_bytes"], bytes)
+    assert len(result.update["naip_img_bytes"]) > 1, "Expected non-empty PNG bytes"

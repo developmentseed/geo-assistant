@@ -1,7 +1,6 @@
 # tools/naip_mpc_tools.py
 from typing import Dict, Any, Optional, Annotated
-from pathlib import Path
-
+from io import BytesIO
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 import xarray as xr
@@ -111,18 +110,20 @@ async def fetch_naip_img(
 
     # --- 4. Save PNG ---
 
-    out_path = Path("naip_rgb.png")
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.imsave(out_path.as_posix(), arr_uint8)
+    buf = BytesIO()
+    plt.imsave(buf, arr_uint8, format="png")
+    buf.seek(0)
+    img_bytes = buf.getvalue()
 
     return Command(
         update={
             "messages": [
                 ToolMessage(
-                    content=f"NAIP RGB image saved to {out_path.as_posix()}",
+                    content="NAIP RGB image fetched and encoded as PNG bytes.",
                     tool_call_id=tool_call_id,
                 )
             ],
-            "naip_png_path": out_path.as_posix(),
+            # This is what your downstream tool should consume
+            "naip_img_bytes": img_bytes,
         }
     )
