@@ -1,6 +1,6 @@
 # tools/naip_mpc_tools.py
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
+from io import BytesIO
 from typing import Annotated, Any
 
 import dotenv
@@ -12,12 +12,13 @@ from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
 from langgraph.types import Command
 from odc.stac import stac_load
+from pystac.extensions.raster import RasterBand
 from pystac_client import Client
 
 dotenv.load_dotenv()
 
-# PC_STAC_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
-E84_STAC_URL = "https://earth-search.aws.element84.com/v1"
+DATA_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
+# DATA_URL = "https://earth-search.aws.element84.com/v1"
 
 
 @tool("fetch_naip_img")
@@ -39,7 +40,7 @@ async def fetch_naip_img(
 
     """
     # --- 1. STAC search on Element84's EarthSearch API ---
-    catalog = Client.open(E84_STAC_URL)
+    catalog = Client.open(DATA_URL)
 
     search = catalog.search(
         collections=["naip"],
@@ -48,6 +49,16 @@ async def fetch_naip_img(
     )
 
     items = list(search.items())
+
+    # This is a hack to add raster extension info to the items, since
+    # the Planetary Computer STAC API adds the band information using the
+    # eo:bands extension, but odc.stac expects the raster:bands extension.
+    for item in items:
+        item.assets["image"].ext.add("raster")
+        item.assets["image"].ext.raster.bands = [
+            RasterBand.create() for _ in ("red", "green", "blue", "nir")
+        ]
+
     if len(items) == 0:
         return Command(
             update={
@@ -61,18 +72,20 @@ async def fetch_naip_img(
             },
         )
 
-        # --- 2. Load as xarray cube with odc.stac ---
-        # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
-        # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection
+    # --- 2. Load as xarray cube with odc.stac ---
+    # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
+    # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection
 
     with ThreadPoolExecutor(max_workers=5) as executor:
         ds: xr.Dataset = stac_load(
             items,
-            bands=["Red", "Green", "Blue"],  # use only RGB
+            bands=["red", "green", "blue"],  # use only RGB
             geopolygon=aoi_geojson,
             resolution=1.0,  # NAIP native ~1 m
             executor=executor,
+            crs=items[0].properties["proj:code"],
         )
+
     if ds.dims.get("time", 0) == 0:
         return Command(
             update={
@@ -82,16 +95,33 @@ async def fetch_naip_img(
                         tool_call_id=tool_call_id,
                     ),
                 ],
-                "naip_png_path": None,
+                "naip_img_bytes": None,
+            },
+        )
+
+    # Enforce max output size based on dataset sizes (y, x)
+    sizes = dict(ds.sizes)
+    h = int(sizes.get("y", 0))
+    w = int(sizes.get("x", 0))
+    if h > 512 or w > 512:
+        return Command(
+            update={
+                "messages": [
+                    ToolMessage(
+                        content=f"NAIP RGB image {w}x{h} exceeds 512x512 limit. Skipping image output.",
+                        tool_call_id=tool_call_id,
+                    ),
+                ],
+                "naip_img_bytes": None,
             },
         )
 
     # --- 3. Build an RGB composite from the cube ---
     # For the PNG, we'll just use the first time slice (you can swap in “latest”
     # or a temporal reduction if you prefer).
-    red = ds["Red"].isel(time=0)
-    green = ds["Green"].isel(time=0)
-    blue = ds["Blue"].isel(time=0)
+    red = ds["red"].isel(time=0)
+    green = ds["green"].isel(time=0)
+    blue = ds["blue"].isel(time=0)
 
     # Stack into (y, x, 3) array
     rgb = xr.concat([red, green, blue], dim="band")  # (band, y, x)
@@ -110,18 +140,19 @@ async def fetch_naip_img(
 
     # --- 4. Save PNG ---
 
-    out_path = Path("naip_rgb.png")
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.imsave(out_path.as_posix(), arr_uint8)
+    buf = BytesIO()
+    plt.imsave(buf, arr_uint8, format="png")
+    buf.seek(0)
+    img_bytes = buf.getvalue()
 
     return Command(
         update={
             "messages": [
                 ToolMessage(
-                    content=f"NAIP RGB image saved to {out_path.as_posix()}",
+                    content="NAIP RGB image fetched and encoded as PNG bytes.",
                     tool_call_id=tool_call_id,
                 ),
             ],
-            "naip_png_path": out_path.as_posix(),
+            "naip_img_bytes": img_bytes,
         },
     )
