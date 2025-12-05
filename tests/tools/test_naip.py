@@ -19,7 +19,6 @@ async def test_fetch_naip():
     # Union Market coordinates from GeoNames: 38.90789, -76.99831
     #   N 38°54′28″  W 76°59′54″
     # We'll use a small neighborhood AOI around that point.
-    # :contentReference[oaicite:0]{index=0}
     lat = 38.90789
     lon = -76.99831
 

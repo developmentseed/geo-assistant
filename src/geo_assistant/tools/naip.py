@@ -11,13 +11,15 @@ from odc.stac import stac_load
 from langgraph.types import Command
 from langchain_core.messages import ToolMessage
 from langchain_core.tools.base import InjectedToolCallId
+from pystac.extensions.raster import RasterBand
+
 
 import dotenv
 
 dotenv.load_dotenv()
 
-# PC_STAC_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
-E84_STAC_URL = "https://earth-search.aws.element84.com/v1"
+DATA_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
+# DATA_URL = "https://earth-search.aws.element84.com/v1"
 
 
 @tool("fetch_naip_img")
@@ -39,7 +41,7 @@ async def fetch_naip_img(
 
     """
     # --- 1. STAC search on Element84's EarthSearch API ---
-    catalog = Client.open(E84_STAC_URL)
+    catalog = Client.open(DATA_URL)
 
     search = catalog.search(
         collections=["naip"],
@@ -48,6 +50,15 @@ async def fetch_naip_img(
     )
 
     items = list(search.items())
+
+    for item in items:
+        item.assets["image"].ext.add("raster")
+        item.assets["image"].ext.raster.bands = [
+            RasterBand.create(nodata=0, data_type="uint8"),
+            RasterBand.create(nodata=0, data_type="uint8"),
+            RasterBand.create(nodata=0, data_type="uint8"),
+        ]
+
     if len(items) == 0:
         return Command(
             update={
@@ -57,13 +68,13 @@ async def fetch_naip_img(
                         tool_call_id=tool_call_id,
                     )
                 ],
-                "naip_png_path": None,
+                "naip_img_bytes": None,
             }
         )
 
-        # --- 2. Load as xarray cube with odc.stac ---
-        # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
-        # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection
+    # --- 2. Load as xarray cube with odc.stac ---
+    # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
+    # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection
 
     with ThreadPoolExecutor(max_workers=5) as executor:
         ds: xr.Dataset = stac_load(
@@ -72,7 +83,9 @@ async def fetch_naip_img(
             geopolygon=aoi_geojson,
             resolution=1.0,  # NAIP native ~1 m
             executor=executor,
+            crs=items[0].properties["proj:code"],
         )
+
     if ds.dims.get("time", 0) == 0:
         return Command(
             update={
@@ -82,7 +95,7 @@ async def fetch_naip_img(
                         tool_call_id=tool_call_id,
                     )
                 ],
-                "naip_png_path": None,
+                "naip_img_bytes": None,
             }
         )
 
