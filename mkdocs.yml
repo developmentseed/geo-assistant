@@ -74,7 +74,6 @@ extra_css:
   - overrides/stylesheets/extra.css
 
 plugins:
-  - blog
   - search
   - social:
       enabled: !ENV [CI, false]
