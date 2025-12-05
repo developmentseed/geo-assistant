@@ -1,10 +1,13 @@
 """Tests for the satellite image summarization tool."""
 
+import base64
 import uuid
 
 import pytest
+import requests
 from langchain_core.tools.base import ToolCall
 
+from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.tools.summarize import summarize_sat_img
 
 # Sample test data
@@ -19,11 +22,18 @@ TEST_IMAGE_URL = "https://petapixel.com/assets/uploads/2022/08/French-Officials-
 )
 @pytest.mark.xfail
 def test_summarize_sat_img(img_url, summary):
+    # Load the image from the supplied URL and encode it in base64
+    resp = requests.get(img_url)
+    resp.raise_for_status()
+    img_base64 = base64.b64encode(resp.content).decode("utf-8")
     command = summarize_sat_img.invoke(
         ToolCall(
             name="summarize_sat_img",
             type="tool_call",
-            args={"img_url": img_url},
+            args={
+                "state": GeoAssistantState(naip_img_bytes=img_base64),
+                "tool_call_id": str(uuid.uuid4()),
+            },
             id=str(uuid.uuid4()),
         ),
     )

@@ -1,9 +1,11 @@
 from types import NoneType
 
 import pytest
+from geojson_pydantic import Feature
 from langchain_core.tools.base import ToolCall
 from shapely.geometry import box, mapping
 
+from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.tools.naip import fetch_naip_img
 
 
@@ -27,13 +29,13 @@ async def test_fetch_naip():
     # ~0.0001 degrees buffer in each direction
     aoi = box(lon - 0.0001, lat - 0.0001, lon + 0.0001, lat + 0.0001)
     aoi_geojson = mapping(aoi)
-
+    aoi_feature = Feature(type="Feature", geometry=aoi_geojson, properties={})
     tool_call = ToolCall(
         name="fetch_naip_img",
         args={
-            "aoi_geojson": aoi_geojson,
             "start_date": "2021-01-01",
             "end_date": "2021-12-31",
+            "state": GeoAssistantState(search_area=aoi_feature, messages=[]),
         },
         type="tool_call",
         id="test_tool_call_id",
@@ -43,7 +45,7 @@ async def test_fetch_naip():
     result = await fetch_naip_img.ainvoke(tool_call)
     assert "naip_img_bytes" in result.update
     assert result.update["naip_img_bytes"] is not None, "Expected PNG bytes in result"
-    assert isinstance(result.update["naip_img_bytes"], bytes)
+    assert isinstance(result.update["naip_img_bytes"], str)
     assert len(result.update["naip_img_bytes"]) > 1, "Expected non-empty PNG bytes"
 
 
@@ -68,13 +70,13 @@ async def test_fetch_naip_too_large():
     # ~0.003 degrees buffer in each direction
     aoi = box(lon - 0.003, lat - 0.003, lon + 0.003, lat + 0.003)
     aoi_geojson = mapping(aoi)
-
+    aoi_feature = Feature(type="Feature", geometry=aoi_geojson, properties={})
     tool_call = ToolCall(
         name="fetch_naip_img",
         args={
-            "aoi_geojson": aoi_geojson,
             "start_date": "2021-01-01",
             "end_date": "2021-12-31",
+            "state": GeoAssistantState(search_area=aoi_feature, messages=[]),
         },
         type="tool_call",
         id="test_tool_call_id",

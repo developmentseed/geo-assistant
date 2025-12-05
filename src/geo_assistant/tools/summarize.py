@@ -8,7 +8,10 @@ import dspy
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
+from langgraph.prebuilt import InjectedState
 from langgraph.types import Command
+
+from geo_assistant.agent.state import GeoAssistantState
 
 dotenv.load_dotenv()
 
@@ -67,7 +70,7 @@ _SUMMARIZER_AGENT = SatImgSummaryAgent()
 
 @tool
 async def summarize_sat_img(
-    img_url: str,
+    state: Annotated[GeoAssistantState, InjectedState],
     tool_call_id: Annotated[str | None, InjectedToolCallId] = None,
 ) -> Command:
     """Summarize the contents of a satellite image using an LLM.
@@ -82,21 +85,24 @@ async def summarize_sat_img(
     Raises:
         ValueError: If the image URL is invalid or the image cannot be processed
     """
-    if not img_url or not isinstance(img_url, str):
-        raise ValueError("img_url must be a non-empty string")
-
+    if not state["naip_img_bytes"]:
+        return Command(
+            update={
+                "messages": [
+                    ToolMessage(
+                        content="No NAIP image bytes available yet",
+                        tool_call_id=tool_call_id,
+                    ),
+                ],
+            },
+        )
+    img_url = f"data:image/png;base64,{state['naip_img_bytes']}"
     summary = _SUMMARIZER_AGENT(img_url)
     message_content = summary.answer
-    artifact = {"img_url": img_url}
-
     return Command(
         update={
             "messages": [
-                ToolMessage(
-                    content=message_content,
-                    artifact=artifact,
-                    tool_call_id=tool_call_id,
-                ),
+                ToolMessage(content=message_content, tool_call_id=tool_call_id),
             ],
         },
     )

@@ -1,4 +1,5 @@
 # tools/naip_mpc_tools.py
+import base64
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 from typing import Annotated
@@ -40,6 +41,18 @@ async def fetch_naip_img(
         end_date: End date (YYYY-MM-DD).
 
     """
+    if not state["search_area"]:
+        return Command(
+            update={
+                "messages": [
+                    ToolMessage(
+                        content="No search area avilable yetmee",
+                        tool_call_id=tool_call_id,
+                    ),
+                ],
+                "naip_img_bytes": None,
+            },
+        )
     # --- 1. STAC search on Element84's EarthSearch API ---
     catalog = Client.open(DATA_URL)
 
@@ -144,7 +157,7 @@ async def fetch_naip_img(
     buf = BytesIO()
     plt.imsave(buf, arr_uint8, format="png")
     buf.seek(0)
-    img_bytes = buf.getvalue()
+    img_base64 = base64.b64encode(buf.read()).decode("utf-8")
 
     return Command(
         update={
@@ -154,6 +167,6 @@ async def fetch_naip_img(
                     tool_call_id=tool_call_id,
                 ),
             ],
-            "naip_img_bytes": img_bytes,
+            "naip_img_bytes": img_base64,
         },
     )
