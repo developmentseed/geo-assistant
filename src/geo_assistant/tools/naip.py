@@ -155,7 +155,7 @@ async def fetch_naip_img(
     # --- 4. Save PNG ---
 
     buf = BytesIO()
-    plt.imsave(buf, arr_uint8, format="png")
+    plt.imsave(buf, arr_uint8, format="jpeg")
     buf.seek(0)
     img_base64 = base64.b64encode(buf.read()).decode("utf-8")
 

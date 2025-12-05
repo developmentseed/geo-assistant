@@ -70,10 +70,7 @@ def stream_chat(user_message: str):
                 if value and isinstance(value, dict) and value.get("type") == "Feature":
                     geojson_features[key] = value
                 elif value and isinstance(value, str) and key == "naip_img_bytes":
-                    # Handle base64-encoded PNG data
-                    print("=" * 50)
-                    print(value)
-                    print("=" * 50)
+                    # Handle base64-encoded jpeg data
                     try:
                         img_bytes = base64.b64decode(value)
                         with st.chat_message("tool"):

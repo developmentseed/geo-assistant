@@ -96,7 +96,7 @@ async def summarize_sat_img(
                 ],
             },
         )
-    img_url = f"data:image/png;base64,{state['naip_img_bytes']}"
+    img_url = f"data:image/jpeg;base64,{state['naip_img_bytes']}"
     summary = _SUMMARIZER_AGENT(img_url)
     message_content = summary.answer
     return Command(
