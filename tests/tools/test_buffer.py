@@ -1,8 +1,9 @@
-from pytest import fixture
-from geo_assistant.agent.state import GeoAssistantState
-from geo_assistant.tools.buffer import get_search_area
 from geojson_pydantic import Feature, Point
 from langchain_core.tools.base import ToolCall
+from pytest import fixture
+
+from geo_assistant.agent.state import GeoAssistantState
+from geo_assistant.tools.buffer import get_search_area
 
 
 @fixture
@@ -12,7 +13,12 @@ def geo_assistant_fixture():
         geometry=Point(type="Point", coordinates=[-9.1393, 38.7223]),
         properties={"name": "Neighbourhood Cafe Lisbon"},
     )
-    return GeoAssistantState(place=place_geojson, search_area=None, messages=[])
+    return GeoAssistantState(
+        place=place_geojson,
+        search_area=None,
+        messages=[],
+        naip_png_path="path/to/naip.png",
+    )
 
 
 async def test_get_search_area(geo_assistant_fixture):
@@ -37,4 +43,4 @@ async def test_get_search_area(geo_assistant_fixture):
 
     # Verify the buffer was created around the correct place
     search_area = command.update["search_area"]
-    assert search_area["type"] == "Polygon"
+    assert search_area.geometry.type == "Polygon"

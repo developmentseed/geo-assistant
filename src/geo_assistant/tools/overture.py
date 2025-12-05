@@ -4,11 +4,12 @@ from typing import Annotated, Literal
 
 import duckdb
 from dotenv import load_dotenv
+from geojson_pydantic import Feature
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
-from langgraph.types import Command
 from langgraph.prebuilt import InjectedState
+from langgraph.types import Command
 
 from geo_assistant.agent.state import GeoAssistantState
 
@@ -36,7 +37,8 @@ def create_database_connection():
 
 @tool
 async def get_place(
-    place_name: str, tool_call_id: Annotated[str, InjectedToolCallId] = ""
+    place_name: str,
+    tool_call_id: Annotated[str, InjectedToolCallId] = "",
 ) -> Command:
     """Get place location from Overture Maps based on user input place name."""
 
@@ -67,36 +69,31 @@ async def get_place(
       WHERE jaro_winkler_similarity(LOWER(names.primary), LOWER('{place_name}')) > 0.5
       ORDER BY similarity_score DESC
       LIMIT 1;
-  """
+  """,
     ).fetchall()
 
     db_connection.close()
 
     geometry = json.loads(location_results[0][-1])
 
-    # Create FeatureCollection
-    feature_collection = {
-        "type": "FeatureCollection",
-        "features": [
-            {
-                "type": "Feature",
-                "geometry": geometry,
-                "properties": {
-                    "name": location_results[0][2],
-                    "overture_id": location_results[0][0],
-                },
-            }
-        ],
-    }
+    feature = Feature(
+        type="Feature",
+        geometry=geometry,
+        properties={
+            "overture_id": location_results[0][0],
+            "name": location_results[0][2],
+            "socials": location_results[0][4],
+        },
+    )
 
     return Command(
         update={
-            "place": feature_collection,
+            "place": feature,
             "messages": [
                 ToolMessage(
-                    content=f"Found place with Overture name: {location_results[0][2]} based on user query",
+                    content=f"Found place with Overture name: {location_results[0][2]} based on user query. Socials: {location_results[0][4]}",
                     tool_call_id=tool_call_id,
-                )
+                ),
             ],
         },
     )
@@ -139,7 +136,7 @@ def get_places_within_buffer(
             WHERE geometry && ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326)
             AND types.primary = '{place}';
             LIMIT 10;
-        """
+        """,
     ).fetchall()
 
     geoms = json.loads(places_results[x][-1] for x in range(len(places_results)))
@@ -157,7 +154,7 @@ def get_places_within_buffer(
                     "name": names,
                     "overture_id": ids,
                 },
-            }
+            },
         ],
     }
 
@@ -168,7 +165,7 @@ def get_places_within_buffer(
                 ToolMessage(
                     content="Found places based on user query",
                     tool_call_id=tool_call_id,
-                )
+                ),
             ],
         },
     )

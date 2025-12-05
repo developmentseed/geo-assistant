@@ -1,11 +1,12 @@
 import os
+
+import geopandas as gpd
 import pytest
+from geojson_pydantic import Feature
 from langchain_core.tools.base import ToolCall
 from shapely.geometry import Point
-from geojson_pydantic import Feature
-import geopandas as gpd
-from geo_assistant.agent.state import GeoAssistantState
 
+from geo_assistant.agent.state import GeoAssistantState
 from geo_assistant.tools.overture import get_place
 from src.geo_assistant.tools.overture import get_places_within_buffer
 
@@ -43,7 +44,9 @@ def geo_assistant_with_buffer_fixture():
     search_area_geojson = gdf_buffered.iloc[0].geometry.__geo_interface__
 
     return GeoAssistantState(
-        place=place_geojson, search_area=search_area_geojson, messages=[]
+        place=place_geojson,
+        search_area=search_area_geojson,
+        messages=[],
     )
 
 
@@ -54,7 +57,7 @@ async def test_get_place():
             type="tool_call",
             id="test_id",
             args={"place_name": "Neighbourhood Cafe Lisbon"},
-        )
+        ),
     )
     assert "place" in command.update
 
@@ -70,7 +73,7 @@ def test_get_places_within_buffer():
                 "state": geo_assistant_with_buffer_fixture,
                 "tool_call_id": "test_id_places_within_buffer",
             },
-        )
+        ),
     )
 
     assert "places_within_buffer" in command.update

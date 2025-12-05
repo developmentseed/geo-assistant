@@ -1,14 +1,14 @@
 """Tools for summarizing satellite images using LLM-based analysis."""
 
 import os
-from typing import Annotated, Optional
-import dspy
-from langchain_core.tools import tool
-from langgraph.types import Command
-from langchain_core.messages import ToolMessage
-from langchain_core.tools.base import InjectedToolCallId
+from typing import Annotated
 
 import dotenv
+import dspy
+from langchain_core.messages import ToolMessage
+from langchain_core.tools import tool
+from langchain_core.tools.base import InjectedToolCallId
+from langgraph.types import Command
 
 dotenv.load_dotenv()
 
@@ -66,9 +66,9 @@ _SUMMARIZER_AGENT = SatImgSummaryAgent()
 
 
 @tool
-def summarize_sat_img(
+async def summarize_sat_img(
     img_url: str,
-    tool_call_id: Annotated[Optional[str], InjectedToolCallId] = None,
+    tool_call_id: Annotated[str | None, InjectedToolCallId] = None,
 ) -> Command:
     """Summarize the contents of a satellite image using an LLM.
 
@@ -96,7 +96,7 @@ def summarize_sat_img(
                     content=message_content,
                     artifact=artifact,
                     tool_call_id=tool_call_id,
-                )
-            ]
-        }
+                ),
+            ],
+        },
     )

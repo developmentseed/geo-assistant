@@ -1,9 +1,15 @@
-from langchain.agents import AgentState
+from typing import NotRequired
+
 from geojson_pydantic import Feature, FeatureCollection
-from typing import Optional
+from langchain.agents import AgentState
+from pydantic import Field
 
 
 class GeoAssistantState(AgentState):
-    place: Optional[Feature]
-    search_area: Optional[Feature]
-    places_within_buffer: Optional[FeatureCollection]
+    place: NotRequired[Feature | None] = None
+    search_area: NotRequired[Feature | None] = None
+    places_within_buffer: NotRequired[FeatureCollection | None] = None
+    naip_png_path: NotRequired[str | None] = Field(
+        default=None,
+        description="Path to the saved NAIP RGB PNG image",
+    )
