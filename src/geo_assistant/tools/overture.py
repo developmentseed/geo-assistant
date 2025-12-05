@@ -127,6 +127,32 @@ def normalize_place_type(place: str) -> str:
     return mappings.get(place_lower, place_lower)
 
 
+def _format_places_within_buffer_message(gdf: gpd.GeoDataFrame) -> str:
+    """Format GeoDataFrame of places into a readable message."""
+    count = len(gdf)
+
+    if count == 0:
+        return "No places found matching your criteria."
+
+    places_list = []
+    for _, row in gdf.iterrows():
+        name = row.get("name", "Unknown")
+        websites = row.get("websites")
+
+        # Extract first website if it's a non-empty list
+        website = (
+            websites[0] if isinstance(websites, list) and len(websites) > 0 else None
+        )
+
+        if website:
+            places_list.append(f"  • {name} - {website}")
+        else:
+            places_list.append(f"  • {name}")
+
+    formatted_places = "\n".join(places_list)
+    return f"Found {count} places:\n{formatted_places}"
+
+
 @tool
 async def get_places_within_buffer(
     place: str,
@@ -190,7 +216,7 @@ async def get_places_within_buffer(
             "places_within_buffer": feature_collection,
             "messages": [
                 ToolMessage(
-                    content="Found places based on user query",
+                    content=_format_places_within_buffer_message(gdf),
                     tool_call_id=tool_call_id,
                 ),
             ],
