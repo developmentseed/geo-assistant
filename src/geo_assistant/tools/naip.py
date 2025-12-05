@@ -87,7 +87,7 @@ async def fetch_naip_img(
         )
 
     # --- 3. Build an RGB composite from the cube ---
-    # For the PNG, we’ll just use the first time slice (you can swap in “latest”
+    # For the PNG, we'll just use the first time slice (you can swap in “latest”
     # or a temporal reduction if you prefer).
     red = ds["Red"].isel(time=0)
     green = ds["Green"].isel(time=0)

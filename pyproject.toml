@@ -52,5 +52,6 @@ asyncio_mode = "auto"
 select = [
     "F",    # pyflakes
     "I",    # isort
+    "RUF",  # ruff-specific
     "UP",   # pyupgrade
 ]

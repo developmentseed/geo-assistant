@@ -20,7 +20,7 @@ async def test_fetch_naip(tmp_path):
     """
 
     # Union Market coordinates from GeoNames: 38.90789, -76.99831
-    #   N 38°54′28″  W 76°59′54″
+    #   N 38°54'28"  W 76°59'54"
     # We'll use a small neighborhood AOI around that point.
     # :contentReference[oaicite:0]{index=0}
     lat = 38.90789
@@ -45,7 +45,7 @@ async def test_fetch_naip(tmp_path):
         id="test_tool_call_id",
     )
 
-    # Call the actual tool – no STAC / odc-stac mocking
+    # Call the actual tool - no STAC / odc-stac mocking
     result = await fetch_naip_img.ainvoke(tool_call["args"])
 
     # Basic sanity checks on result
