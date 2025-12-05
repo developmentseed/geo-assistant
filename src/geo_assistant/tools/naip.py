@@ -61,9 +61,9 @@ async def fetch_naip_img(
             }
         )
 
-        # --- 2. Load as xarray cube with odc.stac ---
-        # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
-        # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection
+    # --- 2. Load as xarray cube with odc.stac ---
+    # NAIP in MPC: 4-band multi-band asset (R,G,B,NIR) in one asset named "image".
+    # odc.stac exposes these as measurements 'red','green','blue','nir' for this collection
 
     with ThreadPoolExecutor(max_workers=5) as executor:
         ds: xr.Dataset = stac_load(
@@ -83,6 +83,24 @@ async def fetch_naip_img(
                     )
                 ],
                 "naip_png_path": None,
+            }
+        )
+
+    # Enforce max output size based on dataset sizes (y, x)
+    sizes = dict(ds.sizes)
+    h = int(sizes.get("y", 0))
+    w = int(sizes.get("x", 0))
+    if h > 512 or w > 512:
+        print("Image too large: ", h, w)
+        return Command(
+            update={
+                "messages": [
+                    ToolMessage(
+                        content=f"NAIP RGB image {w}x{h} exceeds 512x512 limit. Skipping image output.",
+                        tool_call_id=tool_call_id,
+                    )
+                ],
+                "naip_img_bytes": None,
             }
         )
 
