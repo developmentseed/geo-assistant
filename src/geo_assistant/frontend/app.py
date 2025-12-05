@@ -1,3 +1,5 @@
+"""Chat app frontend."""
+
 import base64
 import json
 import os

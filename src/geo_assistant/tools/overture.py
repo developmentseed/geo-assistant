@@ -1,3 +1,5 @@
+"""Tool to find closest matching Overture place based on user input."""
+
 import json
 import os
 from typing import Annotated
@@ -21,7 +23,8 @@ load_dotenv()
 
 
 def create_database_connection():
-    """Create and configure a DuckDB connection with necessary extensions.
+    """
+    Create and configure a DuckDB connection with necessary extensions.
 
     Args:
         database_path: Path to the DuckDB database file
@@ -44,7 +47,6 @@ async def get_place(
     tool_call_id: Annotated[str, InjectedToolCallId] = "",
 ) -> Command:
     """Get place location from Overture Maps based on user input place name."""
-
     db_connection = create_database_connection()
     source = os.getenv("OVERTURE_SOURCE", "local")
     if source == "s3":

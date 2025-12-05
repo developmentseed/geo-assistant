@@ -1,3 +1,5 @@
+"""Tool to create a buffer polygon around a geometry feature."""
+
 from typing import Annotated
 
 import geopandas as gpd
@@ -18,7 +20,6 @@ async def get_search_area(
     tool_call_id: Annotated[str, InjectedToolCallId] = "",
 ) -> Command:
     """Get a search area buffer in km around the place defined in the agent state."""
-
     place_feature = state.get("place")
 
     if not place_feature:

@@ -1,3 +1,5 @@
+"""Chat app API endpoint."""
+
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import aclosing, asynccontextmanager

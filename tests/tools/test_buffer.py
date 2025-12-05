@@ -1,3 +1,5 @@
+"""Tests for buffer tool."""
+
 from geojson_pydantic import Feature, Point
 from langchain_core.tools.base import ToolCall
 from pytest import fixture
