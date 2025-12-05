@@ -44,7 +44,7 @@ async def stream_chat(
     thread_id: UUID4,
     chatbot: Any,
     request: Request,
-) -> AsyncGenerator[bytes, None]:
+) -> AsyncGenerator[bytes]:
     config: dict[str, Any] = {
         "configurable": {
             "thread_id": str(thread_id),
