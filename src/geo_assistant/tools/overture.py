@@ -5,7 +5,7 @@ from typing import Annotated
 import duckdb
 import geopandas as gpd
 from dotenv import load_dotenv
-from geojson_pydantic import Feature
+from geojson_pydantic import Feature, FeatureCollection
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
@@ -181,7 +181,9 @@ async def get_places_within_buffer(
     gdf = gpd.GeoDataFrame(places_df, geometry="geometry", crs="EPSG:4326")
 
     # Convert to GeoJSON FeatureCollection and ensure no numpy arrays
-    feature_collection = json.loads(json.dumps(gdf.__geo_interface__, default=str))
+    feature_collection = FeatureCollection.model_validate(
+        json.loads(json.dumps(gdf.__geo_interface__, default=str)),
+    )
 
     return Command(
         update={
