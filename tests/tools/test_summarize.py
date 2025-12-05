@@ -1,9 +1,10 @@
 """Tests for the satellite image summarization tool."""
 
-import pytest
 import uuid
 
+import pytest
 from langchain_core.tools.base import ToolCall
+
 from geo_assistant.tools.summarize import summarize_sat_img
 
 # Sample test data
@@ -24,7 +25,7 @@ def test_summarize_sat_img(img_url, summary):
             type="tool_call",
             args={"img_url": img_url},
             id=str(uuid.uuid4()),
-        )
+        ),
     )
 
     print(command.update.get("messages"))

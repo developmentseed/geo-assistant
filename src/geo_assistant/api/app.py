@@ -1,11 +1,12 @@
 import json
+import logging
+from collections.abc import AsyncGenerator
 from contextlib import aclosing, asynccontextmanager
-from typing import Any, AsyncGenerator, Dict
+from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-import logging
 from pydantic import UUID4
 
 from geo_assistant.agent.graph import create_graph
@@ -43,11 +44,11 @@ async def stream_chat(
     thread_id: UUID4,
     chatbot: Any,
     request: Request,
-) -> AsyncGenerator[bytes, None]:
-    config: Dict[str, Any] = {
+) -> AsyncGenerator[bytes]:
+    config: dict[str, Any] = {
         "configurable": {
             "thread_id": str(thread_id),
-        }
+        },
     }
 
     state_updates = {}
@@ -69,7 +70,7 @@ async def stream_chat(
                     {
                         "content": f"Manually selected data for field {key}: {description}",
                         "type": "human",
-                    }
+                    },
                 )
 
     # Add UI messages to the existing messages if they exist

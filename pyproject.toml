@@ -47,3 +47,12 @@ packages = ["src/geo_assistant"]
 [tool.pytest.ini_options]
 addopts = "--color=yes"
 asyncio_mode = "auto"
+
+[tool.ruff.lint]
+select = [
+    "COM",  # flake8-commas
+    "F",    # pyflakes
+    "I",    # isort
+    "RUF",  # ruff-specific
+    "UP",   # pyupgrade
+]

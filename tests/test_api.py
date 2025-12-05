@@ -1,10 +1,11 @@
-import pytest
-import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
 from uuid import uuid4
 
-from geo_assistant.api.app import app
+import pytest
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
+
 from geo_assistant.agent.graph import create_graph
+from geo_assistant.api.app import app
 
 
 @pytest_asyncio.fixture
@@ -22,7 +23,8 @@ async def initialized_app():
 async def test_hello_world(initialized_app):
     """Hello world test for the API"""
     async with AsyncClient(
-        transport=ASGITransport(app=initialized_app), base_url="http://test"
+        transport=ASGITransport(app=initialized_app),
+        base_url="http://test",
     ) as client:
         thread_id = uuid4()
         response = await client.post(
@@ -33,7 +35,7 @@ async def test_hello_world(initialized_app):
                         {
                             "content": "Find the Neighbourhood Cafe in Lisbon and buffer 0.5km around it",
                             "type": "human",
-                        }
+                        },
                     ],
                     "place": None,
                     "search_area": None,

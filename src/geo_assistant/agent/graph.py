@@ -1,12 +1,13 @@
 import datetime
 
-from langgraph.checkpoint.memory import InMemorySaver
 from langchain.agents import create_agent
-from geo_assistant.agent.state import GeoAssistantState
+from langgraph.checkpoint.memory import InMemorySaver
+
 from geo_assistant.agent.llms import llm
+from geo_assistant.agent.state import GeoAssistantState
+from geo_assistant.tools.buffer import get_search_area
 from geo_assistant.tools.naip import fetch_naip_img
 from geo_assistant.tools.overture import get_place
-from geo_assistant.tools.buffer import get_search_area
 from geo_assistant.tools.summarize import summarize_sat_img
 
 SYSTEM_PROMPT = """
@@ -36,7 +37,7 @@ async def create_graph():
             summarize_sat_img,
         ],
         system_prompt=SYSTEM_PROMPT.format(
-            now=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            now=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         ),
         state_schema=GeoAssistantState,
         checkpointer=checkpointer,

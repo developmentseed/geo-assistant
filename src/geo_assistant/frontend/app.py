@@ -2,10 +2,10 @@ import json
 import os
 import uuid
 
+import folium
 import httpx
 import streamlit as st
 import streamlit.components.v1 as components
-import folium
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -137,7 +137,10 @@ def stream_chat(user_message: str):
                 # Fit map to bounds if we have coordinates
                 if all_lons and all_lats:
                     m.fit_bounds(
-                        [[min(all_lats), min(all_lons)], [max(all_lats), max(all_lons)]]
+                        [
+                            [min(all_lats), min(all_lons)],
+                            [max(all_lats), max(all_lons)],
+                        ],
                     )
 
                 # Display the map

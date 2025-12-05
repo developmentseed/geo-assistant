@@ -1,6 +1,6 @@
 import os
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from langchain_ollama import ChatOllama
 
 # Load environment variables from env file

@@ -1,8 +1,9 @@
-from pytest import fixture
-from geo_assistant.agent.state import GeoAssistantState
-from geo_assistant.tools.buffer import get_search_area
 from geojson_pydantic import Feature, Point
 from langchain_core.tools.base import ToolCall
+from pytest import fixture
+
+from geo_assistant.agent.state import GeoAssistantState
+from geo_assistant.tools.buffer import get_search_area
 
 
 @fixture

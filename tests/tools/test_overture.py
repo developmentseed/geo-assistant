@@ -1,4 +1,5 @@
 import os
+
 import pytest
 from langchain_core.tools.base import ToolCall
 
@@ -24,6 +25,6 @@ async def test_get_place():
             type="tool_call",
             id="test_id",
             args={"place_name": "Neighbourhood Cafe Lisbon"},
-        )
+        ),
     )
     assert "place" in command.update
