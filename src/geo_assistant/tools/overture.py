@@ -102,7 +102,7 @@ async def get_place(
 
 
 @tool
-def get_places_within_buffer(
+async def get_places_within_buffer(
     place: Literal["restaurant", "cafe", "bar"],
     state: Annotated[GeoAssistantState, InjectedState],
     tool_call_id: Annotated[str, InjectedToolCallId],

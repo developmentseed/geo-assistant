@@ -68,8 +68,8 @@ async def test_get_place():
     assert "place" in command.update
 
 
-def test_get_places_within_buffer(geo_assistant_with_buffer_fixture):
-    command = get_places_within_buffer.invoke(
+async def test_get_places_within_buffer(geo_assistant_with_buffer_fixture):
+    command = await get_places_within_buffer.ainvoke(
         ToolCall(
             name="get_places_within_buffer",
             type="tool_call",
