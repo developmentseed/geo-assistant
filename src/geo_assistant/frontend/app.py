@@ -2,10 +2,10 @@ import json
 import os
 import uuid
 
+import folium
 import httpx
 import streamlit as st
 import streamlit.components.v1 as components
-import folium
 from dotenv import load_dotenv
 
 # Load environment variables from .env file

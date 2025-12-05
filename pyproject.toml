@@ -51,5 +51,6 @@ asyncio_mode = "auto"
 [tool.ruff.lint]
 select = [
     "F",    # pyflakes
+    "I",    # isort
     "UP",   # pyupgrade
 ]

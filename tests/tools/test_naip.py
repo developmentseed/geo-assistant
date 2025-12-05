@@ -1,7 +1,8 @@
-import pytest
 from pathlib import Path
-from shapely.geometry import box, mapping
+
+import pytest
 from langchain_core.tools.base import ToolCall
+from shapely.geometry import box, mapping
 
 from geo_assistant.tools.naip import fetch_naip_img
 

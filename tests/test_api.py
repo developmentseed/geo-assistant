@@ -1,10 +1,11 @@
-import pytest
-import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
 from uuid import uuid4
 
-from geo_assistant.api.app import app
+import pytest
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
+
 from geo_assistant.agent.graph import create_graph
+from geo_assistant.api.app import app
 
 
 @pytest_asyncio.fixture

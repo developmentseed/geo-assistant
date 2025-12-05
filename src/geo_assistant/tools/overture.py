@@ -4,11 +4,11 @@ from typing import Annotated
 
 import duckdb
 from dotenv import load_dotenv
+from geojson_pydantic import Feature
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
 from langgraph.types import Command
-from geojson_pydantic import Feature
 
 # Load environment variables
 load_dotenv()

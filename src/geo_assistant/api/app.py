@@ -1,12 +1,12 @@
 import json
+import logging
+from collections.abc import AsyncGenerator
 from contextlib import aclosing, asynccontextmanager
 from typing import Any
-from collections.abc import AsyncGenerator
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-import logging
 from pydantic import UUID4
 
 from geo_assistant.agent.graph import create_graph
