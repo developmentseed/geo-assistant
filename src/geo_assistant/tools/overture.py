@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Annotated, Literal
+from typing import Annotated
 
 import duckdb
 import geopandas as gpd
@@ -101,13 +101,44 @@ async def get_place(
     )
 
 
+def normalize_place_type(place: str) -> str:
+    """Normalize place type input to Overture categories."""
+    place_lower = place.lower().strip()
+
+    # Mapping of variations to canonical Overture types
+    mappings = {
+        # Restaurants
+        "restaurant": "restaurant",
+        "restaurants": "restaurant",
+        # Cafes/Coffee shops
+        "cafe": "cafe",
+        "cafes": "cafe",
+        "coffee": "cafe",
+        "coffee shop": "cafe",
+        "coffee shops": "cafe",
+        "coffeeshop": "cafe",
+        # Bars
+        "bar": "bar",
+        "bars": "bar",
+        "pub": "bar",
+        "pubs": "bar",
+    }
+
+    return mappings.get(place_lower, place_lower)
+
+
 @tool
 async def get_places_within_buffer(
-    place: Literal["restaurant", "cafe", "bar"],
+    place: str,
     state: Annotated[GeoAssistantState, InjectedState],
     tool_call_id: Annotated[str, InjectedToolCallId],
 ) -> Command:
-    """Get places from Overture Maps within user specified area and user specified Overture place type."""
+    """Get places from Overture Maps within user specified area and user specified Overture place type.
+
+    Accepts: restaurant(s), cafe(s), coffee shop(s), bar(s), pub(s) - case insensitive."""
+
+    # Normalize the place type
+    place = normalize_place_type(place)
 
     # get bounds of buffered place
     search_area = state["search_area"]
