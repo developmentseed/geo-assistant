@@ -126,8 +126,6 @@ async def get_places_within_buffer(
         SELECT
             id,
             names.primary AS name,
-            confidence,
-            CAST(socials AS JSON) AS socials,
             ST_AsGeoJSON(geometry) AS geometry,
             websites,
             socials,
