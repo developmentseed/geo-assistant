@@ -51,12 +51,13 @@ async def fetch_naip_img(
 
     items = list(search.items())
 
+    # This is a hack to add raster extension info to the items, since
+    # the Planetary Computer STAC API adds the band information using the
+    # eo:bands extension, but odc.stac expects the raster:bands extension.
     for item in items:
         item.assets["image"].ext.add("raster")
         item.assets["image"].ext.raster.bands = [
-            RasterBand.create(nodata=0, data_type="uint8"),
-            RasterBand.create(nodata=0, data_type="uint8"),
-            RasterBand.create(nodata=0, data_type="uint8"),
+            RasterBand.create() for _ in ("red", "green", "blue", "nir")
         ]
 
     if len(items) == 0:
@@ -79,7 +80,7 @@ async def fetch_naip_img(
     with ThreadPoolExecutor(max_workers=5) as executor:
         ds: xr.Dataset = stac_load(
             items,
-            bands=["Red", "Green", "Blue"],  # use only RGB
+            bands=["red", "green", "blue"],  # use only RGB
             geopolygon=aoi_geojson,
             resolution=1.0,  # NAIP native ~1 m
             executor=executor,
@@ -119,9 +120,9 @@ async def fetch_naip_img(
     # --- 3. Build an RGB composite from the cube ---
     # For the PNG, we’ll just use the first time slice (you can swap in “latest”
     # or a temporal reduction if you prefer).
-    red = ds["Red"].isel(time=0)
-    green = ds["Green"].isel(time=0)
-    blue = ds["Blue"].isel(time=0)
+    red = ds["red"].isel(time=0)
+    green = ds["green"].isel(time=0)
+    blue = ds["blue"].isel(time=0)
 
     # Stack into (y, x, 3) array
     rgb = xr.concat([red, green, blue], dim="band")  # (band, y, x)
