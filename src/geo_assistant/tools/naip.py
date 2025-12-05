@@ -99,6 +99,23 @@ async def fetch_naip_img(
             }
         )
 
+    # Enforce max output size based on dataset sizes (y, x)
+    sizes = dict(ds.sizes)
+    h = int(sizes.get("y", 0))
+    w = int(sizes.get("x", 0))
+    if h > 512 or w > 512:
+        return Command(
+            update={
+                "messages": [
+                    ToolMessage(
+                        content=f"NAIP RGB image {w}x{h} exceeds 512x512 limit. Skipping image output.",
+                        tool_call_id=tool_call_id,
+                    )
+                ],
+                "naip_img_bytes": None,
+            }
+        )
+
     # --- 3. Build an RGB composite from the cube ---
     # For the PNG, we’ll just use the first time slice (you can swap in “latest”
     # or a temporal reduction if you prefer).
