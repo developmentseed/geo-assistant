@@ -78,10 +78,6 @@ async def summarize_sat_img(
     """
     Summarize the contents of a satellite image using an LLM.
 
-    Args:
-        img_url: URL of the satellite image to analyze
-        tool_call_id: Optional ID for tracking the tool call
-
     Returns:
         Command containing the image summary and metadata
 
