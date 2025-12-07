@@ -78,6 +78,10 @@ async def summarize_sat_img(
     """
     Summarize the contents of a satellite image using an LLM.
 
+    Args:
+        state: Pass in 'naip_img_bytes' as state into this agent.
+        tool_call_id: Optional ID for tracking the tool call.
+
     Returns:
         Command containing the image summary and metadata
 

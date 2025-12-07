@@ -19,7 +19,14 @@ async def get_search_area(
     state: Annotated[GeoAssistantState, InjectedState],
     tool_call_id: Annotated[str, InjectedToolCallId] = "",
 ) -> Command:
-    """Get a search area buffer in km around the place defined in the agent state."""
+    """
+    Get a search area buffer in km around the place defined in the agent state.
+
+    Args:
+        buffer_size_km: Radius of the buffer in kilometres.
+        state: Pass in 'place' as state into this agent.
+        tool_call_id: Optional ID for tracking the tool call.
+    """
     place_feature = state.get("place")
 
     if not place_feature:

@@ -40,7 +40,8 @@ async def fetch_naip_img(
     Args:
         start_date: Start date (YYYY-MM-DD).
         end_date: End date (YYYY-MM-DD).
-
+        state: Pass in search_area as state into this agent.
+        tool_call_id: Optional ID for tracking the tool call
     """
     if not state["search_area"]:
         return Command(
