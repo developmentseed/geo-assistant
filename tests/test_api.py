@@ -12,7 +12,7 @@ from geo_assistant.api.app import app
 
 @pytest_asyncio.fixture
 async def initialized_app():
-    """Initialize the app's chatbot before testing"""
+    """Initialize the app's chatbot before testing."""
     # Manually initialize the chatbot as the lifespan would
     app.state.chatbot = await create_graph()
     yield app
@@ -23,6 +23,7 @@ async def initialized_app():
 
 @pytest.mark.xfail
 async def test_call_api(initialized_app):
+    """Test calling the API at the /chat HTTP POST endpoint."""
     async with AsyncClient(
         transport=ASGITransport(app=initialized_app),
         base_url="http://test",

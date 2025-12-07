@@ -23,6 +23,10 @@ TEST_IMAGE_URL = "https://petapixel.com/assets/uploads/2022/08/French-Officials-
     ],
 )
 async def test_summarize_sat_img(img_url, summary):
+    """
+    Ensure that the `summarize_sat_img` tool can describe a satellite image in JPEG
+    format.
+    """
     # Load the image from the supplied URL and encode it in base64
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",

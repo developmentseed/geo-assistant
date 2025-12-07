@@ -10,6 +10,7 @@ from geo_assistant.tools.buffer import get_search_area
 
 @fixture
 def geo_assistant_fixture():
+    """Fixture with a GeoJSON point feature in a GeoAssistantState."""
     place_geojson = Feature(
         type="Feature",
         geometry=Point(type="Point", coordinates=[-9.1393, 38.7223]),
@@ -24,6 +25,7 @@ def geo_assistant_fixture():
 
 
 async def test_get_search_area(geo_assistant_fixture):
+    """Ensure that `get_search_area` tool returns a buffer Polygon."""
     # Call the underlying function directly to test the logic
     # This bypasses the injection framework which is better suited for integration tests
     command = await get_search_area.ainvoke(

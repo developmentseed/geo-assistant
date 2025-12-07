@@ -59,6 +59,7 @@ def geo_assistant_with_buffer_fixture():
 
 
 async def test_get_place():
+    """Ensure that `get_place` tool returns an Overture place given a place_name."""
     command = await get_place.ainvoke(
         ToolCall(
             name="get_place",
@@ -71,6 +72,10 @@ async def test_get_place():
 
 
 async def test_get_places_within_buffer(geo_assistant_with_buffer_fixture):
+    """
+    Ensure that `get_places_within_buffer` tool returns multiple Overture places that
+    fit match the category 'cafe' within a specific buffer area around a location.
+    """
     command = await get_places_within_buffer.ainvoke(
         ToolCall(
             name="get_places_within_buffer",
