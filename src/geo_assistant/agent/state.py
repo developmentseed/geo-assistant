@@ -8,6 +8,8 @@ from pydantic import Field
 
 
 class GeoAssistantState(AgentState):
+    """Schema for the geo-assistant agent's state."""
+
     place: NotRequired[Feature | None] = None
     search_area: NotRequired[Feature | None] = None
     places_within_buffer: NotRequired[FeatureCollection | None] = None
