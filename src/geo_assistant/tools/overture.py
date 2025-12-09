@@ -1,3 +1,5 @@
+"""Tool to find closest matching Overture place based on user input."""
+
 import json
 import os
 from typing import Annotated
@@ -21,7 +23,8 @@ load_dotenv()
 
 
 def create_database_connection():
-    """Create and configure a DuckDB connection with necessary extensions.
+    """
+    Create and configure a DuckDB connection with necessary extensions.
 
     Args:
         database_path: Path to the DuckDB database file
@@ -43,8 +46,14 @@ async def get_place(
     place_name: str,
     tool_call_id: Annotated[str, InjectedToolCallId] = "",
 ) -> Command:
-    """Get place location from Overture Maps based on user input place name."""
+    """
+    Get place location from Overture Maps based on user input place name.
 
+    Args:
+        place_name: An address or location given as a human-readable string.
+        tool_call_id: Optional ID for tracking the tool call.
+
+    """
     db_connection = create_database_connection()
     source = os.getenv("OVERTURE_SOURCE", "local")
     if source == "s3":
@@ -162,10 +171,16 @@ async def get_places_within_buffer(
     state: Annotated[GeoAssistantState, InjectedState],
     tool_call_id: Annotated[str, InjectedToolCallId],
 ) -> Command:
-    """Get places from Overture Maps within user specified area and user specified Overture place type.
+    """
+    Get places from Overture Maps within user specified area and user specified Overture
+    place type.
 
-    Accepts: restaurant(s), cafe(s), coffee shop(s), bar(s), pub(s) - case insensitive."""
-
+    Args:
+        place: Overture place type. Accepts: restaurant(s), cafe(s), coffee shop(s),
+               bar(s), pub(s) - case insensitive.
+        state: Pass in 'search_area' as state into this agent.
+        tool_call_id: Optional ID for tracking the tool call.
+    """
     # Normalize the place type
     place = normalize_place_type(place)
 

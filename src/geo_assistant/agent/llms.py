@@ -1,3 +1,5 @@
+"""Ollama chat model."""
+
 import os
 
 from dotenv import load_dotenv

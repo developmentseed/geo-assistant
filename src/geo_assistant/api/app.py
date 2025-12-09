@@ -1,3 +1,5 @@
+"""Chat app API endpoint."""
+
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import aclosing, asynccontextmanager
@@ -21,12 +23,12 @@ UI_SET_FIELDS_WHITELIST = ["point", "messages"]
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def _lifespan(app: FastAPI):
     app.state.chatbot = await create_graph()
     yield
 
 
-app = FastAPI(title="Geo Assistant", lifespan=lifespan)
+app = FastAPI(title="Geo Assistant", lifespan=_lifespan)
 
 
 app.add_middleware(
@@ -44,6 +46,7 @@ async def stream_chat(
     chatbot: Any,
     request: Request,
 ) -> AsyncGenerator[bytes]:
+    """Agent chat stream."""
     config: dict[str, Any] = {
         "configurable": {
             "thread_id": str(thread_id),
@@ -101,6 +104,7 @@ async def stream_chat(
 
 @app.post("/chat")
 async def chat(request: ChatRequestBody, http_request: Request) -> StreamingResponse:
+    """HTTP POST endpoint at /chat."""
     generator = stream_chat(
         ui_state_update=request.agent_state_input,
         thread_id=request.thread_id,

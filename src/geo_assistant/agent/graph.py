@@ -1,3 +1,5 @@
+"""Create agent graph that calls tools."""
+
 import datetime
 
 from langchain.agents import create_agent
@@ -31,6 +33,7 @@ The current date and time is {now}.
 
 
 async def create_graph():
+    """Create langchain agent graph with a list of tools."""
     checkpointer = InMemorySaver()
     graph = create_agent(
         model=llm,

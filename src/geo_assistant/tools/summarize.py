@@ -17,7 +17,7 @@ dotenv.load_dotenv()
 
 
 class SatImgSummary(dspy.Signature):
-    "Describe things you see in the satellite image."
+    """Describe things you see in the satellite image."""
 
     img: dspy.Image = dspy.InputField(desc="A satellite image")
     answer: str = dspy.OutputField(desc="Description of the image")
@@ -33,7 +33,8 @@ class SatImgSummaryAgent(dspy.Module):
         temperature: float = 0.5,
         max_tokens: int = 4_096,
     ) -> None:
-        """Initialize the satellite image summary agent.
+        """
+        Initialize the satellite image summary agent.
 
         Args:
             model: The Ollama model to use for summarization
@@ -53,7 +54,8 @@ class SatImgSummaryAgent(dspy.Module):
         self.summarizer = dspy.Predict(SatImgSummary)
 
     def forward(self, img_url: str) -> dspy.Prediction:
-        """Generate a summary for the given image URL.
+        """
+        Generate a summary for the given image URL.
 
         Args:
             img_url: URL of the image to summarize
@@ -73,7 +75,12 @@ async def summarize_sat_img(
     state: Annotated[GeoAssistantState, InjectedState],
     tool_call_id: Annotated[str | None, InjectedToolCallId] = None,
 ) -> Command:
-    """Summarize the contents of a satellite image using an LLM.
+    """
+    Summarize the contents of a satellite image using an LLM.
+
+    Args:
+        state: Pass in 'naip_img_bytes' as state into this agent.
+        tool_call_id: Optional ID for tracking the tool call.
 
     Returns:
         Command containing the image summary and metadata

@@ -1,3 +1,5 @@
+"""Tests for NAIP tool."""
+
 from types import NoneType
 
 import pytest
@@ -19,7 +21,6 @@ async def test_fetch_naip():
       - Internet access (to reach Planetary Computer STAC + blobs)
       - Planetary Computer / NAIP service to be up
     """
-
     # Union Market coordinates from GeoNames: 38.90789, -76.99831
     #   N 38°54'28"  W 76°59'54"
     # We'll use a small neighborhood AOI around that point.
@@ -60,7 +61,6 @@ async def test_fetch_naip_too_large():
       - Internet access (to reach Planetary Computer STAC + blobs)
       - Planetary Computer / NAIP service to be up
     """
-
     # Union Market coordinates from GeoNames: 38.90789, -76.99831
     #   N 38°54'28"  W 76°59'54"
     # We'll use a small neighborhood AOI around that point.
